@@ -245,6 +245,7 @@ NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *In
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_Shutdown(void);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_Shutdown1(VkDevice InDevice);
 
+#ifdef NGX_ENABLE_DEPRECATED_GET_PARAMETERS
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_GetParameters
 // ----------------------------------------------------------
@@ -263,13 +264,14 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_Shutdown1(VkDevice In
 //      Unlike with NVSDK_NGX_AllocateParameters, parameter maps output by NVSDK_NGX_GetParameters
 //      have their lifetimes managed by NGX, and must not
 //      be destroyed by the app using NVSDK_NGX_DestroyParameters.
-//      NVSDK_NGX_GetParameters is soon to be deprecated and apps should move to using
+//      NVSDK_NGX_GetParameters is deprecated and apps should move to using
 //      NVSDK_NGX_AllocateParameters and NVSDK_NGX_GetCapabilityParameters when possible.
 //      Nevertheless, due to the possibility that the user will be using an older driver version,
-//      NVSDK_NGX_GetParameters should still be used as a fallback if NVSDK_NGX_AllocateParameters
+//      NVSDK_NGX_GetParameters may still be used as a fallback if NVSDK_NGX_AllocateParameters
 //      or NVSDK_NGX_GetCapabilityParameters return NVSDK_NGX_Result_FAIL_OutOfDate.
 //
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetParameters(NVSDK_NGX_Parameter **OutParameters);
+#endif // NGX_ENABLE_DEPRECATED_GET_PARAMETERS
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_AllocateParameters

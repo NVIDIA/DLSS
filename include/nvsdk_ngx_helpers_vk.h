@@ -91,6 +91,7 @@ typedef struct NVSDK_NGX_VK_DLSS_Eval_Params
     NVSDK_NGX_Coordinates               InBiasCurrentColorSubrectBase;
     NVSDK_NGX_Coordinates               InOutputSubrectBase;
     float                               InPreExposure;
+    float                               InExposureScale;
     int                                 InIndicatorInvertXAxis;
     int                                 InIndicatorInvertYAxis;
     /*** OPTIONAL - only for research purposes ***/
@@ -229,12 +230,12 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Width , pInDlssEvalParams->InRenderSubrectDimensions.Width);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_Render_Subrect_Dimensions_Height, pInDlssEvalParams->InRenderSubrectDimensions.Height);
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Pre_Exposure, pInDlssEvalParams->InPreExposure == 0.0f ? 1.0f : pInDlssEvalParams->InPreExposure);
+    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
 
     return NVSDK_NGX_VULKAN_EvaluateFeature_C(InCmdList, pInHandle, pInParams, NULL);
 }
-
 
 static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLISP_EXT(
     VkCommandBuffer InCmdList,

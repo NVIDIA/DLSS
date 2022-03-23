@@ -50,6 +50,13 @@ typedef struct NVSDK_NGX_DLSS_Create_Params
     bool    InEnableOutputSubrects;
 } NVSDK_NGX_DLSS_Create_Params;
 
+typedef struct NVSDK_NGX_DLDenoise_Create_Params
+{
+    NVSDK_NGX_Feature_Create_Params Feature;
+    /*** OPTIONAL ***/
+    int InFeatureCreateFlags;
+} NVSDK_NGX_DLDenoise_Create_Params;
+
 #ifdef __cplusplus
 typedef struct NVSDK_NGX_Parameter
 {

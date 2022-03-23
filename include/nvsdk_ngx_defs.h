@@ -218,7 +218,6 @@ typedef enum NSDK_NGX_GPU_Arch
     NVSDK_NGX_GPU_Arch_Unknown      = 0x7FFFFFF
 } NVSDK_NGX_GPU_Arch;
 
-
 typedef enum NVSDK_NGX_DLSS_Feature_Flags
 {
     NVSDK_NGX_DLSS_Feature_Flags_IsInvalid      = 1 << 31,
@@ -252,6 +251,10 @@ typedef enum NVSDK_NGX_GBufferType
     NVSDK_NGX_GBUFFER_NORMALS,
     NVSDK_NGX_GBUFFER_SHADINGMODELID,  /* unique identifier for drawn object or how the object is drawn */
     NVSDK_NGX_GBUFFER_MATERIALID, /* unique identifier for material */
+    NVSDK_NGX_GBUFFER_SPECULAR_ALBEDO,
+    NVSDK_NGX_GBUFFER_INDIRECT_ALBEDO,
+    NVSDK_NGX_GBUFFER_SPECULAR_MVEC,
+    NVSDK_NGX_GBUFFER_DISOCCL_MASK,
     NVSDK_NGX_GBUFFERTYPE_NUM = 16
 } NVSDK_NGX_GBufferType;
 
@@ -269,7 +272,11 @@ typedef struct NVSDK_NGX_Dimensions
 
 typedef struct NVSDK_NGX_PathListInfo
 {
+#ifdef NV_WINDOWS
     wchar_t **Path;
+#else //NV_WINDOWS
+    char **Path;
+#endif //NV_WINDOWS
     // Path-list length
     unsigned int Length;
 } NVSDK_NGX_PathListInfo;
@@ -346,7 +353,7 @@ typedef enum NVSDK_NGX_EngineType
     NVSDK_NGX_ENGINE_TYPE_UNREAL,
     NVSDK_NGX_ENGINE_TYPE_UNITY,
     NVSDK_NGX_ENGINE_TYPE_OMNIVERSE,
-	NVSDK_NGX_ENGINE_COUNT
+    NVSDK_NGX_ENGINE_COUNT
 } NVSDK_NGX_EngineType;
 
 // Read-only parameters provided by NGX
@@ -373,7 +380,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_EParameter_Sharpness           "#\x14"
 #define NVSDK_NGX_EParameter_Scratch             "#\x15"
 #define NVSDK_NGX_EParameter_Scratch_SizeInBytes "#\x16"
-#define NVSDK_NGX_EParameter_Deprecated_17       "#\x17"
+#define NVSDK_NGX_EParameter_EvaluationNode      "#\x17" // valid since API 0x13 (replaced a deprecated param)
 #define NVSDK_NGX_EParameter_Input1              "#\x18"
 #define NVSDK_NGX_EParameter_Input1_Format       "#\x19"
 #define NVSDK_NGX_EParameter_Input1_SizeInBytes  "#\x1a"
@@ -538,8 +545,14 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_ExposureTexture   "ExposureTexture" // a 1x1 texture containing the final exposure scale
 #define NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags "DLSS.Feature.Create.Flags"
 #define NVSDK_NGX_Parameter_DLSS_Checkerboard_Jitter_Hack "DLSS.Checkerboard.Jitter.Hack"
+#define NVSDK_NGX_Parameter_GBuffer_Normals "GBuffer.Normals"
 #define NVSDK_NGX_Parameter_GBuffer_Albedo "GBuffer.Albedo"
 #define NVSDK_NGX_Parameter_GBuffer_Roughness "GBuffer.Roughness"
+#define NVSDK_NGX_Parameter_GBuffer_DiffuseAlbedo "GBuffer.DiffuseAlbedo"
+#define NVSDK_NGX_Parameter_GBuffer_SpecularAlbedo "GBuffer.SpecularAlbedo"
+#define NVSDK_NGX_Parameter_GBuffer_IndirectAlbedo "GBuffer.IndirectAlbedo"
+#define NVSDK_NGX_Parameter_GBuffer_SpecularMvec "GBuffer.SpecularMvec"
+#define NVSDK_NGX_Parameter_GBuffer_DisocclusionMask "GBuffer.DisocclusionMask"
 #define NVSDK_NGX_Parameter_GBuffer_Metallic "GBuffer.Metallic"
 #define NVSDK_NGX_Parameter_GBuffer_Specular "GBuffer.Specular"
 #define NVSDK_NGX_Parameter_GBuffer_Subsurface "GBuffer.Subsurface"

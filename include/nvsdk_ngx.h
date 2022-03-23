@@ -32,8 +32,8 @@
 *     need to update drivers. Please note that application Id is provided
 *     by NVIDIA so if you do not have one please contact us.
 * 
-*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetParameters to obtain pointer to 
-*     interface used to pass parameters to SDK. Interface instance is 
+*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetCapabilityParameters to obtain pointer
+*     to interface used to pass parameters to SDK. Interface instance is 
 *     allocated and released by SDK so there is no need to do any memory 
 *     management on client side.
 *    
@@ -200,6 +200,7 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_Shutdown(void);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_Shutdown1(ID3D12Device *InDevice);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_Shutdown(void);
 
+#ifdef NGX_ENABLE_DEPRECATED_GET_PARAMETERS
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_GetParameters
 // ----------------------------------------------------------
@@ -218,15 +219,16 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_Shutdown(void);
 //      Unlike with NVSDK_NGX_AllocateParameters, parameter maps output by NVSDK_NGX_GetParameters
 //      have their lifetimes managed by NGX, and must not
 //      be destroyed by the app using NVSDK_NGX_DestroyParameters.
-//      NVSDK_NGX_GetParameters is soon to be deprecated and apps should move to using
+//      NVSDK_NGX_GetParameters is deprecated and apps should move to using
 //      NVSDK_NGX_AllocateParameters and NVSDK_NGX_GetCapabilityParameters when possible.
 //      Nevertheless, due to the possibility that the user will be using an older driver version,
-//      NVSDK_NGX_GetParameters should still be used as a fallback if NVSDK_NGX_AllocateParameters
+//      NVSDK_NGX_GetParameters may still be used as a fallback if NVSDK_NGX_AllocateParameters
 //      or NVSDK_NGX_GetCapabilityParameters return NVSDK_NGX_Result_FAIL_OutOfDate.
 //
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D11_GetParameters(NVSDK_NGX_Parameter **OutParameters);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_GetParameters(NVSDK_NGX_Parameter **OutParameters);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_GetParameters(NVSDK_NGX_Parameter **OutParameters);
+#endif // NGX_ENABLE_DEPRECATED_GET_PARAMETERS
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_AllocateParameters
