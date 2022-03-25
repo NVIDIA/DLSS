@@ -9,7 +9,7 @@ To get the NVIDIA Image Scaling SDK submodule use the following command
 ```
 $ git clone --recurse-submodules https://github.com/NVIDIA/DLSS.git
 ```
-or if you already have clonned the DLSS repository and didn't use --recurse-submodules
+or if you already have cloned the DLSS repository and didn't use --recurse-submodules
 ```
 git submodule update --init --recursive
 ```
