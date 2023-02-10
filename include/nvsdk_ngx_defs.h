@@ -1,22 +1,14 @@
 /*
-* Copyright (c) 2018 NVIDIA CORPORATION.  All rights reserved.
-*
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
-*/
+ * SPDX-FileCopyrightText: Copyright (c) 2018-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+ *
+ * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+ * property and proprietary rights in and to this material, related
+ * documentation and any modifications thereto. Any use, reproduction,
+ * disclosure or distribution of this material and related documentation
+ * without an express license agreement from NVIDIA CORPORATION or
+ * its affiliates is strictly prohibited.
+ */
 
 #ifndef NVSDK_NGX_DEFS_H
 #define NVSDK_NGX_DEFS_H
@@ -34,13 +26,13 @@ extern "C"
 #endif
 
 #ifdef __cplusplus
-#if defined(NVSDK_NGX) && defined(NV_WINDOWS)
+#if defined(NVSDK_NGX) && defined(_WIN32)
 #define NVSDK_NGX_API extern "C" __declspec(dllexport)
 #else
 #define NVSDK_NGX_API extern "C"
 #endif
 #else
-#if defined(NVSDK_NGX) && defined(NV_WINDOWS)
+#if defined(NVSDK_NGX) && defined(_WIN32)
 #define NVSDK_NGX_API __declspec(dllexport)
 #else
 #define NVSDK_NGX_API 
@@ -61,7 +53,20 @@ extern "C"
 //          * Added ability for the app to override the logging level
 //      Version 0x0000015:
 //          * Support multiple GPUs (bug 3270533)
-#define NVSDK_NGX_VERSION_API_MACRO 0x0000014  // NGX_VERSION_DOT 1.4.0
+#define NVSDK_NGX_VERSION_API_MACRO 0x0000015  // NGX_VERSION_DOT 1.5.0
+
+typedef unsigned long long AppId;
+
+typedef enum NVSDK_NGX_DLSS_Hint_Render_Preset
+{
+    NVSDK_NGX_DLSS_Hint_Render_Preset_Default,     // default behavior, may or may not change after OTA
+    NVSDK_NGX_DLSS_Hint_Render_Preset_A,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_B,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_C,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_D,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_E,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_F,
+} NVSDK_NGX_DLSS_Hint_Render_Preset;
 
 typedef struct NVSDK_NGX_FeatureCommonInfo_Internal NVSDK_NGX_FeatureCommonInfo_Internal;
 
@@ -122,7 +127,10 @@ typedef enum NVSDK_NGX_Result
     NVSDK_NGX_Result_FAIL_UnsupportedParameter = NVSDK_NGX_Result_Fail | 16,
 
     // The feature or application was denied (contact NVIDIA for further details)
-    NVSDK_NGX_Result_FAIL_Denied = NVSDK_NGX_Result_Fail | 17
+    NVSDK_NGX_Result_FAIL_Denied = NVSDK_NGX_Result_Fail | 17,
+    
+    // The feature or functionality is not implemented
+    NVSDK_NGX_Result_FAIL_NotImplemented = NVSDK_NGX_Result_Fail | 18,
 } NVSDK_NGX_Result;
 
 #define NVSDK_NGX_SUCCEED(value) (((value) & 0xFFF00000) != NVSDK_NGX_Result_Fail)
@@ -130,29 +138,31 @@ typedef enum NVSDK_NGX_Result
 
 typedef enum NVSDK_NGX_Feature
 {
-    NVSDK_NGX_Feature_Reserved0,
+    NVSDK_NGX_Feature_Reserved0             = 0,
 
-    NVSDK_NGX_Feature_SuperSampling,
+    NVSDK_NGX_Feature_SuperSampling         = 1,
 
-    NVSDK_NGX_Feature_InPainting,
+    NVSDK_NGX_Feature_InPainting            = 2,
 
-    NVSDK_NGX_Feature_ImageSuperResolution,
+    NVSDK_NGX_Feature_ImageSuperResolution  = 3,
 
-    NVSDK_NGX_Feature_SlowMotion,
+    NVSDK_NGX_Feature_SlowMotion            = 4,
 
-    NVSDK_NGX_Feature_VideoSuperResolution,
+    NVSDK_NGX_Feature_VideoSuperResolution  = 5,
 
-    NVSDK_NGX_Feature_Reserved1,
+    NVSDK_NGX_Feature_Reserved1             = 6,
 
-    NVSDK_NGX_Feature_Reserved2,
+    NVSDK_NGX_Feature_Reserved2             = 7,
 
-    NVSDK_NGX_Feature_Reserved3,
+    NVSDK_NGX_Feature_Reserved3             = 8,
 
-    NVSDK_NGX_Feature_ImageSignalProcessing,
+    NVSDK_NGX_Feature_ImageSignalProcessing = 9,
 
-    NVSDK_NGX_Feature_DeepResolve,
+    NVSDK_NGX_Feature_DeepResolve           = 10,
 
-    NVSDK_NGX_Feature_Reserved4,
+    NVSDK_NGX_Feature_FrameGeneration       = 11,
+    
+    NVSDK_NGX_Feature_DeepDVC               = 12,
 
     // New features go here
     NVSDK_NGX_Feature_Count,
@@ -160,11 +170,11 @@ typedef enum NVSDK_NGX_Feature
     // These members are not strictly NGX features, but are 
     // components of the NGX system, and it may sometimes
     // be useful to identify them using the same enum
-    NVSDK_NGX_Feature_Reserved_SDK = 32764,
+    NVSDK_NGX_Feature_Reserved_SDK          = 32764,
 
-    NVSDK_NGX_Feature_Reserved_Core,
+    NVSDK_NGX_Feature_Reserved_Core         = 32765,
 
-    NVSDK_NGX_Feature_Reserved_Unknown
+    NVSDK_NGX_Feature_Reserved_Unknown      = 32766
 } NVSDK_NGX_Feature;
 
 //TODO create grayscale format (R32F?)
@@ -202,6 +212,12 @@ typedef enum NVSDK_NGX_DLSS_Mode
     NVSDK_NGX_DLSS_Mode_DLISP_Only, // use existing in-engine AA solution
     NVSDK_NGX_DLSS_Mode_DLSS,       // DLSS will apply AA and upsample at the same time
 } NVSDK_NGX_DLSS_Mode;
+
+typedef enum NVSDK_NGX_DeepDVC_Mode
+{
+    NVSDK_NGX_DLSS_DeepDVC_Mode_Off = 0, // No DeepDVC
+    NVSDK_NGX_DLSS_DeepDVC_Mode_On,  // Minimal DeepDVC Integration for RT Effects
+} NVSDK_NGX_DLSS_DeepDVC_Mode;
 
 typedef struct NVSDK_NGX_Handle { unsigned int Id; } NVSDK_NGX_Handle;
 
@@ -255,6 +271,7 @@ typedef enum NVSDK_NGX_GBufferType
     NVSDK_NGX_GBUFFER_INDIRECT_ALBEDO,
     NVSDK_NGX_GBUFFER_SPECULAR_MVEC,
     NVSDK_NGX_GBUFFER_DISOCCL_MASK,
+    NVSDK_NGX_GBUFFER_EMISSIVE,
     NVSDK_NGX_GBUFFERTYPE_NUM = 16
 } NVSDK_NGX_GBufferType;
 
@@ -272,11 +289,8 @@ typedef struct NVSDK_NGX_Dimensions
 
 typedef struct NVSDK_NGX_PathListInfo
 {
-#ifdef NV_WINDOWS
-    wchar_t **Path;
-#else //NV_WINDOWS
-    char **Path;
-#endif //NV_WINDOWS
+    // Pointer to a const string
+    wchar_t const * const *  Path;
     // Path-list length
     unsigned int Length;
 } NVSDK_NGX_PathListInfo;
@@ -302,7 +316,7 @@ typedef void NVSDK_CONV(*NVSDK_NGX_AppLogCallback)(const char* message, NVSDK_NG
 typedef void(NVSDK_CONV* NVSDK_NGX_AppLogCallback)(const char* message, NVSDK_NGX_Logging_Level loggingLevel, NVSDK_NGX_Feature sourceComponent);
 #endif
 
-typedef struct NGSDK_NGX_LoggingInfo
+typedef struct NVSDK_NGX_LoggingInfo
 {
     // Fields below were introduced in SDK version 0x0000014
 
@@ -319,7 +333,7 @@ typedef struct NGSDK_NGX_LoggingInfo
     // to a valid logging callback if this is set to true.
     bool DisableOtherLoggingSinks;
 
-} NGSDK_NGX_LoggingInfo;
+} NVSDK_NGX_LoggingInfo;
 
 typedef struct NVSDK_NGX_FeatureCommonInfo
 {
@@ -329,8 +343,7 @@ typedef struct NVSDK_NGX_FeatureCommonInfo
     NVSDK_NGX_FeatureCommonInfo_Internal* InternalData; // Introduced in SDK version 0x0000013
 
     // Fields below were introduced in SDK version 0x0000014
-
-    NGSDK_NGX_LoggingInfo LoggingInfo;
+    NVSDK_NGX_LoggingInfo LoggingInfo;
 } NVSDK_NGX_FeatureCommonInfo;
 
 typedef enum NVSDK_NGX_Resource_VK_Type
@@ -355,6 +368,117 @@ typedef enum NVSDK_NGX_EngineType
     NVSDK_NGX_ENGINE_TYPE_OMNIVERSE,
     NVSDK_NGX_ENGINE_COUNT
 } NVSDK_NGX_EngineType;
+
+typedef enum NVSDK_NGX_Feature_Support_Result
+{
+    NVSDK_NGX_FeatureSupportResult_Supported = 0,
+    NVSDK_NGX_FeatureSupportResult_CheckNotPresent = 1,
+    NVSDK_NGX_FeatureSupportResult_DriverVersionUnsupported = 2,
+    NVSDK_NGX_FeatureSupportResult_AdapterUnsupported = 4,
+    NVSDK_NGX_FeatureSupportResult_OSVersionBelowMinimumSupported = 8,
+    NVSDK_NGX_FeatureSupportResult_NotImplemented = 16
+} NVSDK_NGX_Feature_Support_Result;
+ 
+typedef enum NVSDK_NGX_Application_Identifier_Type
+{
+    NVSDK_NGX_Application_Identifier_Type_Application_Id = 0,
+    NVSDK_NGX_Application_Identifier_Type_Project_Id = 1,
+} NVSDK_NGX_Application_Identifier_Type;
+ 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NVSDK_NGX_ProjectIdDescription
+// -------------------------------------
+// Contains information to identify an application built using a common rendering engine (list of supported rendering engines is defined in NVSDK_NGX_EngineType).
+// Should only be used by plugins for the supported rendering engines, unless using NVSDK_NGX_ENGINE_TYPE_CUSTOM as the engine type.
+//
+// ProjectId
+//      Unique Id provided by the rendering engine used
+//
+// EngineType
+//      Rendering engine used by the application / plugin.
+//      Use NVSDK_NGX_ENGINE_TYPE_CUSTOM if the specific engine type is not supported explicitly
+//
+// EngineVersion
+//      Version number of the rendering engine used by the application / plugin.
+//
+// DESCRIPTION:
+// Contains information to identify an application built using a common rendering engine (list of supported rendering engines is defined in NVSDK_NGX_EngineType).
+// Should only be used by plugins for the supported rendering engines, unless using NVSDK_NGX_ENGINE_TYPE_CUSTOM as the engine type.
+//
+typedef struct NVSDK_NGX_ProjectIdDescription
+{
+    const char* ProjectId;
+    NVSDK_NGX_EngineType EngineType;
+    const char* EngineVersion;
+} NVSDK_NGX_ProjectIdDescription;
+ 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NVSDK_NGX_Application_Identifier
+// -------------------------------------
+// Identifier for each application. Required for over the air updates (both optional and mandatory)
+// as well as for app-specific customizations for features like DLSS-SR
+//
+// IdentifierType:
+//      Whether using a NVSDK_NGX_ProjectIdDescription or an Unique Application Identifier
+//
+// ProjectDesc:
+//      If using NVSDK_NGX_ProjectIdDescription, this contains the project ID and engine info required to identify this app
+//
+// ApplicationIdentifier:
+//      If not using NVSDK_NGX_ProjectIdDescription, this contains an ID provided by NVIDIA for this app
+//      If your NVIDIA contact did not provide you an ID for this purpose, use ProjectDesc with NVSDK_NGX_ENGINE_TYPE_CUSTOM as the engine type
+//
+typedef struct NVSDK_NGX_Application_Identifier
+{
+    NVSDK_NGX_Application_Identifier_Type IdentifierType;
+    union v {
+        NVSDK_NGX_ProjectIdDescription ProjectDesc;
+        unsigned long long ApplicationId;
+    } v;
+} NVSDK_NGX_Application_Identifier;
+ 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NVSDK_NGX_FeatureDiscoveryInfo
+// -------------------------------------
+// Contains information common to all features, used by NGX in determining requested Feature availability
+//
+// InSDKVersion:
+//      API Struct version number
+//
+// FeatureID
+//      Valid NVSDK_NGX_Feature enum corresponding to DLSS v3 Feature which is being queried for availability
+//
+// ApplicationId
+//      Unique Id provided by NVIDIA corresponding to a particular Application or alternatively custom Id set by Engine
+//
+// InApplicationDataPath:
+//      Folder to store logs and other temporary files (write access required),
+//      Normally this would be a location in Documents or ProgramData.
+//
+// FeatureInfo:
+//      Contains information common to all features, presently only a list of all paths
+//      feature dlls can be located in, other than the default path - application directory.
+//
+typedef struct NVSDK_NGX_FeatureDiscoveryInfo
+{
+    NVSDK_NGX_Version SDKVersion;
+    NVSDK_NGX_Feature FeatureID;
+    NVSDK_NGX_Application_Identifier Identifier;
+    const wchar_t* ApplicationDataPath;
+    const NVSDK_NGX_FeatureCommonInfo* FeatureInfo;
+} NVSDK_NGX_FeatureDiscoveryInfo;
+ 
+typedef struct NVSDK_NGX_FeatureRequirement
+{
+    // Bitfield of bit shifted values specified in NVSDK_NGX_Feature_Support_Result. 0 if Feature is Supported.
+    NVSDK_NGX_Feature_Support_Result FeatureSupported;
+
+    // Returned HW Architecture value corresponding to NV_GPU_ARCHITECTURE_ID values defined in NvAPI GPU Framework.
+    unsigned int MinHWArchitecture;
+
+    // Value corresponding to minimum OS version required for NGX Feature Support
+    char MinOSVersion[255];
+} NVSDK_NGX_FeatureRequirement;
 
 // Read-only parameters provided by NGX
 #define NVSDK_NGX_EParameter_Reserved00                           "#\x00"
@@ -427,6 +551,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_EParameter_Deprecated_43               "#\x43"
 #define NVSDK_NGX_EParameter_OptLevel                    "#\x44"
 #define NVSDK_NGX_EParameter_IsDevSnippetBranch          "#\x45"
+#define NVSDK_NGX_EParameter_DeepDVC_Avalilable          "#\x46"
 
 #define NVSDK_NGX_Parameter_OptLevel "Snippet.OptLevel"
 #define NVSDK_NGX_Parameter_IsDevSnippetBranch "Snippet.IsDevBranch"
@@ -439,6 +564,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_VideoSuperResolution_Available "VideoSuperResolution.Available"
 #define NVSDK_NGX_Parameter_ImageSignalProcessing_Available "ImageSignalProcessing.Available"
 #define NVSDK_NGX_Parameter_DeepResolve_Available "DeepResolve.Available"
+#define NVSDK_NGX_Parameter_DeepDVC_Available "DeepDVC.Available"
 #define NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver            "SuperSampling.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_InPainting_NeedsUpdatedDriver               "InPainting.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_NeedsUpdatedDriver     "ImageSuperResolution.NeedsUpdatedDriver"
@@ -446,6 +572,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_VideoSuperResolution_NeedsUpdatedDriver     "VideoSuperResolution.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_ImageSignalProcessing_NeedsUpdatedDriver    "ImageSignalProcessing.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_DeepResolve_NeedsUpdatedDriver              "DeepResolve.NeedsUpdatedDriver"
+#define NVSDK_NGX_Parameter_DeepDVC_NeedsUpdatedDriver                  "DeepDVC.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_FrameInterpolation_NeedsUpdatedDriver       "FrameInterpolation.NeedsUpdatedDriver"
 #define NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor         "SuperSampling.MinDriverVersionMajor"
 #define NVSDK_NGX_Parameter_InPainting_MinDriverVersionMajor            "InPainting.MinDriverVersionMajor"
@@ -454,6 +581,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMajor  "VideoSuperResolution.MinDriverVersionMajor"
 #define NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMajor "ImageSignalProcessing.MinDriverVersionMajor"
 #define NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMajor           "DeepResolve.MinDriverVersionMajor"
+#define NVSDK_NGX_Parameter_DeepDVC_MinDriverVersionMajor               "DeepDVC.MinDriverVersionMajor"
 #define NVSDK_NGX_Parameter_FrameInterpolation_MinDriverVersionMajor    "FrameInterpolation.MinDriverVersionMajor"
 #define NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor         "SuperSampling.MinDriverVersionMinor"
 #define NVSDK_NGX_Parameter_InPainting_MinDriverVersionMinor            "InPainting.MinDriverVersionMinor"
@@ -462,6 +590,7 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_VideoSuperResolution_MinDriverVersionMinor  "VideoSuperResolution.MinDriverVersionMinor"
 #define NVSDK_NGX_Parameter_ImageSignalProcessing_MinDriverVersionMinor "ImageSignalProcessing.MinDriverVersionMinor"
 #define NVSDK_NGX_Parameter_DeepResolve_MinDriverVersionMinor           "DeepResolve.MinDriverVersionMinor"
+#define NVSDK_NGX_Parameter_DeepDVC_MinDriverVersionMinor               "DeepDVC.MinDriverVersionMinor"
 #define NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult             "SuperSampling.FeatureInitResult"
 #define NVSDK_NGX_Parameter_InPainting_FeatureInitResult                "InPainting.FeatureInitResult"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_FeatureInitResult      "ImageSuperResolution.FeatureInitResult"
@@ -469,11 +598,13 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_VideoSuperResolution_FeatureInitResult      "VideoSuperResolution.FeatureInitResult"
 #define NVSDK_NGX_Parameter_ImageSignalProcessing_FeatureInitResult     "ImageSignalProcessing.FeatureInitResult"
 #define NVSDK_NGX_Parameter_DeepResolve_FeatureInitResult               "DeepResolve.FeatureInitResult"
+#define NVSDK_NGX_Parameter_DeepDVC_FeatureInitResult                   "DeepDVC.FeatureInitResult"
 #define NVSDK_NGX_Parameter_FrameInterpolation_FeatureInitResult        "FrameInterpolation.FeatureInitResult"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_2_1 "ImageSuperResolution.ScaleFactor.2.1"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_1 "ImageSuperResolution.ScaleFactor.3.1"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_3_2 "ImageSuperResolution.ScaleFactor.3.2"
 #define NVSDK_NGX_Parameter_ImageSuperResolution_ScaleFactor_4_3 "ImageSuperResolution.ScaleFactor.4.3"
+#define NVSDK_NGX_Parameter_DeepDVC_Strength "DeepDVC.Strength"
 #define NVSDK_NGX_Parameter_NumFrames "NumFrames"
 #define NVSDK_NGX_Parameter_Scale "Scale"
 #define NVSDK_NGX_Parameter_Width "Width"
@@ -597,11 +728,20 @@ typedef enum NVSDK_NGX_EngineType
 #define NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_Y "DLSS.Input.Bias.Current.Color.Subrect.Base.Y"
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis          "DLSS.Indicator.Invert.Y.Axis"
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis          "DLSS.Indicator.Invert.X.Axis"
+#define NVSDK_NGX_Parameter_DLSS_INV_VIEW_PROJECTION_MATRIX "InvViewProjectionMatrix"
+#define NVSDK_NGX_Parameter_DLSS_PROJECTION_MATRIX          "ProjectionMatrix"
+#define NVSDK_NGX_Parameter_DLSS_CLIP_TO_PREV_CLIP_MATRIX   "ClipToPrevClipMatrix"
 
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width     "DLSS.Get.Dynamic.Max.Render.Width"
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Height    "DLSS.Get.Dynamic.Max.Render.Height"
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Width     "DLSS.Get.Dynamic.Min.Render.Width"
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Min_Render_Height    "DLSS.Get.Dynamic.Min.Render.Height"
+
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA "DLSS.Hint.Render.Preset.DLAA"
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Quality "DLSS.Hint.Render.Preset.Quality"
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Balanced "DLSS.Hint.Render.Preset.Balanced"
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Performance "DLSS.Hint.Render.Preset.Performance"
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraPerformance "DLSS.Hint.Render.Preset.UltraPerformance"
 
 #ifdef __cplusplus
 } // extern "C"

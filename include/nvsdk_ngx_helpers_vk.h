@@ -1,22 +1,14 @@
 /*
-* Copyright (c) 2018 NVIDIA CORPORATION.  All rights reserved.
-*
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
-*/
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+ *
+ * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+ * property and proprietary rights in and to this material, related
+ * documentation and any modifications thereto. Any use, reproduction,
+ * disclosure or distribution of this material and related documentation
+ * without an express license agreement from NVIDIA CORPORATION or
+ * its affiliates is strictly prohibited.
+ */
 
 #ifndef NVSDK_NGX_HELPERS_VK_H
 #define NVSDK_NGX_HELPERS_VK_H
@@ -118,12 +110,9 @@ typedef struct NVSDK_NGX_VK_DLISP_Eval_Params
     float                               InDenoise;
 } NVSDK_NGX_VK_DLISP_Eval_Params;
 
-static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLSS_EXT1(
-    VkDevice InDevice,
-    VkCommandBuffer InCmdList,
+static inline void NGX_VULKAN_CREATE_DLSS_COMMON(
     unsigned int InCreationNodeMask,
     unsigned int InVisibilityNodeMask,
-    NVSDK_NGX_Handle **ppOutHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
 {
@@ -136,6 +125,18 @@ static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLSS_EXT1(
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_PerfQualityValue, pInDlssCreateParams->Feature.InPerfQualityValue);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags, pInDlssCreateParams->InFeatureCreateFlags);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects, pInDlssCreateParams->InEnableOutputSubrects ? 1 : 0);
+}
+
+static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLSS_EXT1(
+    VkDevice InDevice,
+    VkCommandBuffer InCmdList,
+    unsigned int InCreationNodeMask,
+    unsigned int InVisibilityNodeMask,
+    NVSDK_NGX_Handle **ppOutHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
+{
+    NGX_VULKAN_CREATE_DLSS_COMMON(InCreationNodeMask, InVisibilityNodeMask, pInParams, pInDlssCreateParams);
 
     if (InDevice) return NVSDK_NGX_VULKAN_CreateFeature1(InDevice, InCmdList, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
     else return NVSDK_NGX_VULKAN_CreateFeature(InCmdList, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
@@ -152,9 +153,7 @@ static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLSS_EXT(
     return NGX_VULKAN_CREATE_DLSS_EXT1(NULL, InCmdList, InCreationNodeMask, InVisibilityNodeMask, ppOutHandle, pInParams, pInDlssCreateParams);
 }
 
-static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_EXT(
-    VkCommandBuffer InCmdList,
-    NVSDK_NGX_Handle *pInHandle,
+static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_COMMON(
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_VK_DLSS_Eval_Params *pInDlssEvalParams)
 {
@@ -233,6 +232,21 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
+
+    return NVSDK_NGX_Result_Success;
+}
+
+static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_EXT(
+    VkCommandBuffer InCmdList,
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_VK_DLSS_Eval_Params *pInDlssEvalParams)
+{
+    NVSDK_NGX_Result ret = NGX_VULKAN_EVALUATE_DLSS_COMMON(pInParams, pInDlssEvalParams);
+    if (ret != NVSDK_NGX_Result_Success)
+    {
+        return ret;
+    }
 
     return NVSDK_NGX_VULKAN_EvaluateFeature_C(InCmdList, pInHandle, pInParams, NULL);
 }

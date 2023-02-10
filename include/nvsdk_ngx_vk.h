@@ -1,22 +1,14 @@
 /*
-* Copyright (c) 2018 NVIDIA CORPORATION.  All rights reserved.
-*
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
-*/
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+ *
+ * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+ * property and proprietary rights in and to this material, related
+ * documentation and any modifications thereto. Any use, reproduction,
+ * disclosure or distribution of this material and related documentation
+ * without an express license agreement from NVIDIA CORPORATION or
+ * its affiliates is strictly prohibited.
+ */
 
 /*
 *  HOW TO USE:
@@ -160,6 +152,7 @@ typedef struct NVSDK_NGX_Resource_VK {
 } NVSDK_NGX_Resource_VK;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// DEPRECATED, use NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements() and NVSDK_NGX_VULKAN_GetFeatureRequirements() instead
 // NVSDK_NGX_RequiredExtensions [Vulkan only]
 //
 // OutInstanceExtCount:
@@ -174,7 +167,7 @@ typedef struct NVSDK_NGX_Resource_VK {
 // OutDeviceExts:
 //   Returns a pointer to *OutDeviceExtCount strings of device extensions
 //
-NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_RequiredExtensions(unsigned int *OutInstanceExtCount, const char *** OutInstanceExts, unsigned int *OutDeviceExtCount, const char *** OutDeviceExts);
+NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_RequiredExtensions(unsigned int *OutInstanceExtCount, const char ***OutInstanceExts, unsigned int *OutDeviceExtCount, const char ***OutDeviceExts);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_Init
@@ -187,16 +180,19 @@ NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_RequiredExtensions(u
 //      Folder to store logs and other temporary files (write access required),
 //      Normally this would be a location in Documents or ProgramData.
 //
-// InDevice: [d3d11/12 only]
-//      DirectX device to use
+// InInstance/InPD/InDevice: [vk only]
+//      Vulkan Instance, PhysicalDevice, and Device to use
+//
+// InGIPA/InGDPA: [vk only]
+//      Optional Vulkan function pointers to vkGetInstanceProcAddr and vkGetDeviceProcAddr
 //
 // DESCRIPTION:
 //      Initializes new SDK instance.
 //
 #ifdef __cplusplus
-NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long long InApplicationId, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo = nullptr, NVSDK_NGX_Version InSDKVersion = NVSDK_NGX_Version_API);
+NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long long InApplicationId, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, PFN_vkGetInstanceProcAddr InGIPA = nullptr, PFN_vkGetDeviceProcAddr InGDPA = nullptr, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo = nullptr, NVSDK_NGX_Version InSDKVersion = NVSDK_NGX_Version_API);
 #else
-NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long long InApplicationId, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo, NVSDK_NGX_Version InSDKVersion);
+NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long long InApplicationId, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, PFN_vkGetInstanceProcAddr InGIPA, PFN_vkGetDeviceProcAddr InGDPA, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo, NVSDK_NGX_Version InSDKVersion);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,8 +213,11 @@ NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long l
 //      Folder to store logs and other temporary files (write access required),
 //      Normally this would be a location in Documents or ProgramData.
 //
-// InDevice: [d3d11/12 only]
-//      DirectX device to use
+// InInstance/InPD/InDevice: [vk only]
+//      Vulkan Instance, PhysicalDevice, and Device to use
+//
+// InGIPA/InGDPA: [vk only]
+//      Optional Vulkan function pointers to vkGetInstanceProcAddr and vkGetDeviceProcAddr
 //
 // InFeatureInfo:
 //      Contains information common to all features, presently only a list of all paths 
@@ -228,9 +227,9 @@ NVSDK_NGX_API NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init(unsigned long l
 //      Initializes new SDK instance.
 //
 #ifdef __cplusplus
-NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *InProjectId, NVSDK_NGX_EngineType InEngineType, const char *InEngineVersion, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo = nullptr, NVSDK_NGX_Version InSDKVersion = NVSDK_NGX_Version_API);
+NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *InProjectId, NVSDK_NGX_EngineType InEngineType, const char *InEngineVersion, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, PFN_vkGetInstanceProcAddr InGIPA = nullptr, PFN_vkGetDeviceProcAddr InGDPA = nullptr, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo = nullptr, NVSDK_NGX_Version InSDKVersion = NVSDK_NGX_Version_API);
 #else
-NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *InProjectId, NVSDK_NGX_EngineType InEngineType, const char *InEngineVersion, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo, NVSDK_NGX_Version InSDKVersion);
+NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *InProjectId, NVSDK_NGX_EngineType InEngineType, const char *InEngineVersion, const wchar_t *InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, PFN_vkGetInstanceProcAddr InGIPA, PFN_vkGetDeviceProcAddr InGDPA, const NVSDK_NGX_FeatureCommonInfo *InFeatureInfo, NVSDK_NGX_Version InSDKVersion);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +241,9 @@ NVSDK_NGX_Result  NVSDK_CONV NVSDK_NGX_VULKAN_Init_with_ProjectID(const char *In
 //      Shutdown1(Device) only affects specified device
 //      Shutdown1(nullptr) = Shutdown() and shuts down all devices
 //
+#ifdef NGX_ENABLE_DEPRECATED_SHUTDOWN
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_Shutdown(void);
+#endif
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_Shutdown1(VkDevice InDevice);
 
 #ifdef NGX_ENABLE_DEPRECATED_GET_PARAMETERS
@@ -400,8 +401,8 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetScratchBufferSize(
 //      CreateFeature() creates feature on single existing Device
 //      CreateFeature1() creates feature on the specified Device
 //
-NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_CreateFeature(VkCommandBuffer InCmdBuffer, NVSDK_NGX_Feature InFeatureID, const NVSDK_NGX_Parameter *InParameters, NVSDK_NGX_Handle **OutHandle);
-NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_CreateFeature1(VkDevice InDevice, VkCommandBuffer InCmdList, NVSDK_NGX_Feature InFeatureID, const NVSDK_NGX_Parameter *InParameters, NVSDK_NGX_Handle **OutHandle);
+NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_CreateFeature(VkCommandBuffer InCmdBuffer, NVSDK_NGX_Feature InFeatureID, NVSDK_NGX_Parameter *InParameters, NVSDK_NGX_Handle **OutHandle);
+NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_CreateFeature1(VkDevice InDevice, VkCommandBuffer InCmdList, NVSDK_NGX_Feature InFeatureID, NVSDK_NGX_Parameter *InParameters, NVSDK_NGX_Handle **OutHandle);
 
 /////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_Release
@@ -416,6 +417,92 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_CreateFeature1(VkDevi
 //      after this call it is invalid to use provided handle.
 //
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_ReleaseFeature(NVSDK_NGX_Handle *InHandle);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// NVSDK_NGX_GetFeatureRequirements
+// -------------------------------------
+// Instance:
+//      VkInstance
+//
+// InPhysicalDevice:
+//      VkPhysicalDevice
+//
+// FeatureDiscoveryInfo:
+//      Contains information common to all NGX Features - required for Feature discovery, Initialization and Logging.
+//
+// DESCRIPTION:
+//      Utility function used to identify system requirements to support a given NGX Feature
+//      on a system given its display device subsytem adapter information that will be subsequently used for creating the graphics device.
+//      The output parameter OutSupported will be populated with requirements and are valid  if and only if NVSDK_NGX_Result_Success is returned:
+//          OutSupported::FeatureSupported: bitfield of bit shifted values specified in NVSDK_NGX_Feature_Support_Result. 0 if Feature is Supported.
+//          OutSupported::MinHWArchitecture: Returned HW Architecture value corresponding to NV_GPU_ARCHITECTURE_ID values defined in NvAPI GPU Framework.
+//          OutSupported::MinOSVersion: Value corresponding to minimum OS version required for NGX Feature Support
+//
+NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureRequirements(const VkInstance Instance,
+                                                                                  const VkPhysicalDevice PhysicalDevice,
+                                                                                  const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
+                                                                                  NVSDK_NGX_FeatureRequirement *OutSupported);
+ 
+ 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// GetFeatureInstanceExtensionRequirements
+// --------------------------------------------
+//
+// FeatureDiscoveryInfo:
+//      Contains information common to all NGX Features - required for Feature discovery, Initialization and Logging.
+//
+// InOutExtensionCount:
+//      A pointer to an integer related to the number of extension properties required or queried, as described below.
+//
+// OutExtensionProperties:
+//      Either NULL or a pointer to an array of VkExtensionProperties structures.
+//
+// DESCRIPTION:
+//      Utility function used to identify Vulkan Instance Extensions required for NGX Feature support identified by its FeatureID.
+//
+//      When OutExtensionProperties is NULL, InOutExtensionCount will be populated with the number of extensions
+//      required by the NGX Feature specified in FeatureID. Otherwise OutExtensionProperties must be large enough to contain
+//      *InOutExtensionCount * sizeof(VkExtensionProperties) bytes of data.
+//
+//      The returned extension list is valid if NVSDK_NGX_Result_Success is returned.
+//
+NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements(const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
+                                                                                                   uint32_t *InOutExtensionCount,
+                                                                                                   VkExtensionProperties **OutExtensionProperties);
+ 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// GetFeatureDeviceExtensionRequirements
+// --------------------------------------
+// Instance:
+//      VkInstance
+//
+// InPhysicalDevice:
+//      VkPhysicalDevice
+//
+// FeatureDiscoveryInfo:
+//      Contains information common to all NGX Features - required for Feature discovery, Initialization and Logging.
+//
+// InOutExtensionCount:
+//      A pointer to an integer related to the number of extension properties required or queried, as described below.
+//
+// OutExtensionProperties:
+//      Either NULL or a pointer to an array of VkExtensionProperties structures.
+//
+// DESCRIPTION:
+//      Utility function used to identify Vulkan Device Extensions required for NGX Feature support identified by its FeatureID,
+//      VkInstance, and VkPhysicalDevice.
+//
+//      When OutExtensionProperties is NULL, InOutExtensionCount will be populated with the number of extensions
+//      required by the NGX Feature specified in FeatureID. Otherwise OutExtensionProperties must be large enough to contain
+//      *InOutExtensionCount * sizeof(VkExtensionProperties) bytes of data.
+//
+//      The returned extension list is valid if NVSDK_NGX_Result_Success is returned.
+//
+NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements(VkInstance Instance,
+                                                                                                 VkPhysicalDevice PhysicalDevice,
+                                                                                                 const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
+                                                                                                 uint32_t *InOutExtensionCount,
+                                                                                                 VkExtensionProperties **OutExtensionProperties);
 
 /////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_EvaluateFeature

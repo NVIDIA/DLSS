@@ -1,22 +1,14 @@
 /*
-* Copyright (c) 2018 NVIDIA CORPORATION.  All rights reserved.
-*
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
-*/
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+ *
+ * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+ * property and proprietary rights in and to this material, related
+ * documentation and any modifications thereto. Any use, reproduction,
+ * disclosure or distribution of this material and related documentation
+ * without an express license agreement from NVIDIA CORPORATION or
+ * its affiliates is strictly prohibited.
+ */
 
 #ifndef NVSDK_NGX_HELPERS_H
 #define NVSDK_NGX_HELPERS_H
@@ -207,9 +199,19 @@ typedef struct NVSDK_NGX_CUDA_DLISP_Eval_Params
     float                           InDenoise;
 } NVSDK_NGX_CUDA_DLISP_Eval_Params;
 
-static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSS_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle **ppOutHandle,
+typedef struct NVSDK_NGX_D3D11_DEEPDVC_Eval_Params
+{
+    ID3D11Resource*                     pInColor;
+    float                               Strength;
+} NVSDK_NGX_D3D11_DEEPDVC_Eval_Params;
+
+typedef struct NVSDK_NGX_CUDA_DEEPDVC_Eval_Params
+{
+    CUtexObject*                        pInColor;
+    float                               Strength;
+} NVSDK_NGX_CUDA_DEEPDVC_Eval_Params;
+
+static inline void NGX_D3D11_CREATE_DLSS_COMMON(
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
 {
@@ -220,13 +222,20 @@ static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_PerfQualityValue, pInDlssCreateParams->Feature.InPerfQualityValue);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags, pInDlssCreateParams->InFeatureCreateFlags);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects, pInDlssCreateParams->InEnableOutputSubrects ? 1 : 0);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSS_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle **ppOutHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
+{
+    NGX_D3D11_CREATE_DLSS_COMMON(pInParams, pInDlssCreateParams);
 
     return NVSDK_NGX_D3D11_CreateFeature(pInCtx, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
 }
 
-static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSS_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle *pInHandle,
+static inline void NGX_D3D11_EVALUATE_DLSS_COMMON(
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_D3D11_DLSS_Eval_Params *pInDlssEvalParams)
 {
@@ -286,6 +295,15 @@ static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSS_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_D3D11_DLSS_Eval_Params *pInDlssEvalParams)
+{
+    NGX_D3D11_EVALUATE_DLSS_COMMON(pInParams, pInDlssEvalParams);
 
     return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, pInHandle, pInParams, NULL);
 }
@@ -397,6 +415,53 @@ static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLRESOLVE_EXT(
     return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, InHandle, pInParams, NULL);
 }
 
+static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DEEPDVC_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle **ppOutHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_Feature_Create_Params *pDeepDVCCreateParams)
+{
+    return NVSDK_NGX_D3D11_CreateFeature(pInCtx, NVSDK_NGX_Feature_DeepDVC, pInParams, ppOutHandle);
+}
+
+static inline NVSDK_NGX_Result NGX_CUDA_CREATE_DEEPDVC_EXT(
+    NVSDK_NGX_Handle** ppOutHandle,
+    NVSDK_NGX_Parameter* pInParams,
+    NVSDK_NGX_Feature_Create_Params* pDeepDVCCreateParams)
+{
+    return NVSDK_NGX_CUDA_CreateFeature(NVSDK_NGX_Feature_DeepDVC, pInParams, ppOutHandle);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DEEPDVC_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_D3D11_DEEPDVC_Eval_Params *pDeepDVCEvalParams)
+{
+    if (pDeepDVCEvalParams->Strength < 0.0f || pDeepDVCEvalParams->Strength > 1.0f)
+    {
+        return NVSDK_NGX_Result_FAIL_InvalidParameter;
+    }
+    NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_Color, pDeepDVCEvalParams->pInColor);
+    // Strength in range [0.0f,1.0f]
+    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DeepDVC_Strength, pDeepDVCEvalParams->Strength);
+    return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, pInHandle, pInParams, NULL);
+}
+
+static inline NVSDK_NGX_Result NGX_CUDA_EVALUATE_DEEPDVC_EXT(
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_CUDA_DEEPDVC_Eval_Params *pDeepDVCEvalParams)
+{
+    if (pDeepDVCEvalParams->Strength < 0.0f || pDeepDVCEvalParams->Strength > 1.0f)
+    {
+        return NVSDK_NGX_Result_FAIL_InvalidParameter;
+    }
+    NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Color, pDeepDVCEvalParams->pInColor);
+    // Strength in range [0.0f,1.0f]
+    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DeepDVC_Strength, pDeepDVCEvalParams->Strength);
+    return NVSDK_NGX_CUDA_EvaluateFeature_C(pInHandle, pInParams, NULL);
+}
 /*** D3D12 ***/
 typedef struct NVSDK_NGX_D3D12_Feature_Eval_Params
 {
@@ -460,11 +525,15 @@ typedef struct NVSDK_NGX_D3D12_DLISP_Eval_Params
     float                               InDenoise;
 } NVSDK_NGX_D3D12_DLISP_Eval_Params;
 
-static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLSS_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
+typedef struct NVSDK_NGX_D3D12_DEEPDVC_Eval_Params
+{
+    ID3D12Resource*                     pInColor;
+    float                               Strength;
+} NVSDK_NGX_D3D12_DEEPDVC_Eval_Params;
+
+static inline void NGX_D3D12_CREATE_DLSS_COMMON(
     unsigned int InCreationNodeMask,
     unsigned int InVisibilityNodeMask,
-    NVSDK_NGX_Handle **ppOutHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
 {
@@ -477,13 +546,22 @@ static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_PerfQualityValue, pInDlssCreateParams->Feature.InPerfQualityValue);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags, pInDlssCreateParams->InFeatureCreateFlags);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects, pInDlssCreateParams->InEnableOutputSubrects ? 1 : 0);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLSS_EXT(
+    ID3D12GraphicsCommandList *pInCmdList,
+    unsigned int InCreationNodeMask,
+    unsigned int InVisibilityNodeMask,
+    NVSDK_NGX_Handle **ppOutHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
+{
+    NGX_D3D12_CREATE_DLSS_COMMON(InCreationNodeMask, InVisibilityNodeMask, pInParams, pInDlssCreateParams);
 
     return NVSDK_NGX_D3D12_CreateFeature(pInCmdList, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
 }
 
-static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSS_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
-    NVSDK_NGX_Handle *pInHandle,
+static inline void NGX_D3D12_EVALUATE_DLSS_COMMON(
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_D3D12_DLSS_Eval_Params *pInDlssEvalParams)
 {
@@ -543,6 +621,15 @@ static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSS_EXT(
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSS_EXT(
+    ID3D12GraphicsCommandList *pInCmdList,
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_D3D12_DLSS_Eval_Params *pInDlssEvalParams)
+{
+    NGX_D3D12_EVALUATE_DLSS_COMMON(pInParams, pInDlssEvalParams);
 
     return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
 }
@@ -589,6 +676,34 @@ static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLISP_EXT(
         NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Rect_W, pDlispEvalParams->InRectW);
         NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Rect_H, pDlispEvalParams->InRectH);
     }
+    return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DEEPDVC_EXT(
+    ID3D12GraphicsCommandList *InCmdList,
+    unsigned int InCreationNodeMask,
+    unsigned int InVisibilityNodeMask,
+    NVSDK_NGX_Handle **ppOutHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_Feature_Create_Params *pDeepDVCCreateParams)
+{
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_CreationNodeMask, InCreationNodeMask);
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_VisibilityNodeMask, InVisibilityNodeMask);
+    return NVSDK_NGX_D3D12_CreateFeature(InCmdList, NVSDK_NGX_Feature_DeepDVC, pInParams, ppOutHandle);
+}
+
+static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DEEPDVC_EXT(
+    ID3D12GraphicsCommandList *pInCmdList,
+    NVSDK_NGX_Handle *pInHandle,
+    NVSDK_NGX_Parameter *pInParams,
+    NVSDK_NGX_D3D12_DEEPDVC_Eval_Params *pDeepDVCEvalParams)
+{
+    if (pDeepDVCEvalParams->Strength < 0.0f || pDeepDVCEvalParams->Strength > 1.0f)
+    {
+        return NVSDK_NGX_Result_FAIL_InvalidParameter;
+    }
+    NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_Color, pDeepDVCEvalParams->pInColor);
+    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DeepDVC_Strength, pDeepDVCEvalParams->Strength);
     return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
 }
 
