@@ -211,7 +211,9 @@ typedef struct NVSDK_NGX_CUDA_DEEPDVC_Eval_Params
     float                               Strength;
 } NVSDK_NGX_CUDA_DEEPDVC_Eval_Params;
 
-static inline void NGX_D3D11_CREATE_DLSS_COMMON(
+static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSS_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle **ppOutHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
 {
@@ -222,20 +224,14 @@ static inline void NGX_D3D11_CREATE_DLSS_COMMON(
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_PerfQualityValue, pInDlssCreateParams->Feature.InPerfQualityValue);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags, pInDlssCreateParams->InFeatureCreateFlags);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects, pInDlssCreateParams->InEnableOutputSubrects ? 1 : 0);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSS_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle **ppOutHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
-{
-    NGX_D3D11_CREATE_DLSS_COMMON(pInParams, pInDlssCreateParams);
 
     return NVSDK_NGX_D3D11_CreateFeature(pInCtx, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
 }
 
-static inline void NGX_D3D11_EVALUATE_DLSS_COMMON(
+
+static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSS_EXT(
+    ID3D11DeviceContext *pInCtx,
+    NVSDK_NGX_Handle *pInHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_D3D11_DLSS_Eval_Params *pInDlssEvalParams)
 {
@@ -295,15 +291,6 @@ static inline void NGX_D3D11_EVALUATE_DLSS_COMMON(
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSS_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle *pInHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_D3D11_DLSS_Eval_Params *pInDlssEvalParams)
-{
-    NGX_D3D11_EVALUATE_DLSS_COMMON(pInParams, pInDlssEvalParams);
 
     return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, pInHandle, pInParams, NULL);
 }
@@ -531,9 +518,11 @@ typedef struct NVSDK_NGX_D3D12_DEEPDVC_Eval_Params
     float                               Strength;
 } NVSDK_NGX_D3D12_DEEPDVC_Eval_Params;
 
-static inline void NGX_D3D12_CREATE_DLSS_COMMON(
+static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLSS_EXT(
+    ID3D12GraphicsCommandList *pInCmdList,
     unsigned int InCreationNodeMask,
     unsigned int InVisibilityNodeMask,
+    NVSDK_NGX_Handle **ppOutHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
 {
@@ -546,22 +535,14 @@ static inline void NGX_D3D12_CREATE_DLSS_COMMON(
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_PerfQualityValue, pInDlssCreateParams->Feature.InPerfQualityValue);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Feature_Create_Flags, pInDlssCreateParams->InFeatureCreateFlags);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Enable_Output_Subrects, pInDlssCreateParams->InEnableOutputSubrects ? 1 : 0);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLSS_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
-    unsigned int InCreationNodeMask,
-    unsigned int InVisibilityNodeMask,
-    NVSDK_NGX_Handle **ppOutHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_DLSS_Create_Params *pInDlssCreateParams)
-{
-    NGX_D3D12_CREATE_DLSS_COMMON(InCreationNodeMask, InVisibilityNodeMask, pInParams, pInDlssCreateParams);
 
     return NVSDK_NGX_D3D12_CreateFeature(pInCmdList, NVSDK_NGX_Feature_SuperSampling, pInParams, ppOutHandle);
 }
 
-static inline void NGX_D3D12_EVALUATE_DLSS_COMMON(
+
+static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSS_EXT(
+    ID3D12GraphicsCommandList *pInCmdList,
+    NVSDK_NGX_Handle *pInHandle,
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_D3D12_DLSS_Eval_Params *pInDlssEvalParams)
 {
@@ -621,15 +602,6 @@ static inline void NGX_D3D12_EVALUATE_DLSS_COMMON(
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_DLSS_Exposure_Scale, pInDlssEvalParams->InExposureScale == 0.0f ? 1.0f : pInDlssEvalParams->InExposureScale);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis, pInDlssEvalParams->InIndicatorInvertXAxis);
     NVSDK_NGX_Parameter_SetI(pInParams, NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis, pInDlssEvalParams->InIndicatorInvertYAxis);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSS_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
-    NVSDK_NGX_Handle *pInHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_D3D12_DLSS_Eval_Params *pInDlssEvalParams)
-{
-    NGX_D3D12_EVALUATE_DLSS_COMMON(pInParams, pInDlssEvalParams);
 
     return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
 }

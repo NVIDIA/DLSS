@@ -451,25 +451,26 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureRequirement
 // FeatureDiscoveryInfo:
 //      Contains information common to all NGX Features - required for Feature discovery, Initialization and Logging.
 //
-// InOutExtensionCount:
+// OutExtensionCount:
 //      A pointer to an integer related to the number of extension properties required or queried, as described below.
 //
 // OutExtensionProperties:
-//      Either NULL or a pointer to an array of VkExtensionProperties structures.
+//      Either NULL or a pointer to a pointer to an array of VkExtensionProperties structures.
 //
 // DESCRIPTION:
 //      Utility function used to identify Vulkan Instance Extensions required for NGX Feature support identified by its FeatureID.
 //
-//      When OutExtensionProperties is NULL, InOutExtensionCount will be populated with the number of extensions
-//      required by the NGX Feature specified in FeatureID. Otherwise OutExtensionProperties must be large enough to contain
-//      *InOutExtensionCount * sizeof(VkExtensionProperties) bytes of data.
+//      OutExtensionCount will be populated with the number of extensions
+//      required by the NGX Feature specified in FeatureID.
+//      OutExtensionProperties will be populated with a pointer to a
+//      OutExtensionCount sized array of VkExtensionProperties structures.
 //
 //      The returned extension list is valid if NVSDK_NGX_Result_Success is returned.
 //
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements(const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
-                                                                                                   uint32_t *InOutExtensionCount,
+                                                                                                   uint32_t *OutExtensionCount,
                                                                                                    VkExtensionProperties **OutExtensionProperties);
- 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GetFeatureDeviceExtensionRequirements
 // --------------------------------------
@@ -482,26 +483,27 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureInstanceExt
 // FeatureDiscoveryInfo:
 //      Contains information common to all NGX Features - required for Feature discovery, Initialization and Logging.
 //
-// InOutExtensionCount:
+// OutExtensionCount:
 //      A pointer to an integer related to the number of extension properties required or queried, as described below.
 //
 // OutExtensionProperties:
-//      Either NULL or a pointer to an array of VkExtensionProperties structures.
+//      Either NULL or a pointer to a pointer to an array of VkExtensionProperties structures.
 //
 // DESCRIPTION:
 //      Utility function used to identify Vulkan Device Extensions required for NGX Feature support identified by its FeatureID,
 //      VkInstance, and VkPhysicalDevice.
 //
-//      When OutExtensionProperties is NULL, InOutExtensionCount will be populated with the number of extensions
-//      required by the NGX Feature specified in FeatureID. Otherwise OutExtensionProperties must be large enough to contain
-//      *InOutExtensionCount * sizeof(VkExtensionProperties) bytes of data.
+//      OutExtensionCount will be populated with the number of extensions
+//      required by the NGX Feature specified in FeatureID.
+//      OutExtensionProperties will be populated with a pointer to a
+//      OutExtensionCount sized array of VkExtensionProperties structures.
 //
 //      The returned extension list is valid if NVSDK_NGX_Result_Success is returned.
 //
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements(VkInstance Instance,
                                                                                                  VkPhysicalDevice PhysicalDevice,
                                                                                                  const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
-                                                                                                 uint32_t *InOutExtensionCount,
+                                                                                                 uint32_t *OutExtensionCount,
                                                                                                  VkExtensionProperties **OutExtensionProperties);
 
 /////////////////////////////////////////////////////////////////////////

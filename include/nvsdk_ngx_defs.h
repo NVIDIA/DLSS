@@ -66,6 +66,7 @@ typedef enum NVSDK_NGX_DLSS_Hint_Render_Preset
     NVSDK_NGX_DLSS_Hint_Render_Preset_D,
     NVSDK_NGX_DLSS_Hint_Render_Preset_E,
     NVSDK_NGX_DLSS_Hint_Render_Preset_F,
+    NVSDK_NGX_DLSS_Hint_Render_Preset_G,
 } NVSDK_NGX_DLSS_Hint_Render_Preset;
 
 typedef struct NVSDK_NGX_FeatureCommonInfo_Internal NVSDK_NGX_FeatureCommonInfo_Internal;
@@ -164,6 +165,8 @@ typedef enum NVSDK_NGX_Feature
     
     NVSDK_NGX_Feature_DeepDVC               = 12,
 
+    NVSDK_NGX_Feature_Reserved13             = 13,
+
     // New features go here
     NVSDK_NGX_Feature_Count,
 
@@ -197,6 +200,7 @@ typedef enum NVSDK_NGX_PerfQuality_Value
     // Extended PerfQuality modes
     NVSDK_NGX_PerfQuality_Value_UltraPerformance,
     NVSDK_NGX_PerfQuality_Value_UltraQuality,
+    NVSDK_NGX_PerfQuality_Value_DLAA,
 } NVSDK_NGX_PerfQuality_Value;
 
 typedef enum NVSDK_NGX_RTX_Value
@@ -687,7 +691,6 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_GBuffer_Metallic "GBuffer.Metallic"
 #define NVSDK_NGX_Parameter_GBuffer_Specular "GBuffer.Specular"
 #define NVSDK_NGX_Parameter_GBuffer_Subsurface "GBuffer.Subsurface"
-#define NVSDK_NGX_Parameter_GBuffer_Normals "GBuffer.Normals"
 #define NVSDK_NGX_Parameter_GBuffer_ShadingModelId "GBuffer.ShadingModelId"
 #define NVSDK_NGX_Parameter_GBuffer_MaterialId "GBuffer.MaterialId"
 #define NVSDK_NGX_Parameter_GBuffer_Atrrib_8 "GBuffer.Attrib.8"
@@ -729,7 +732,6 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis          "DLSS.Indicator.Invert.Y.Axis"
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis          "DLSS.Indicator.Invert.X.Axis"
 #define NVSDK_NGX_Parameter_DLSS_INV_VIEW_PROJECTION_MATRIX "InvViewProjectionMatrix"
-#define NVSDK_NGX_Parameter_DLSS_PROJECTION_MATRIX          "ProjectionMatrix"
 #define NVSDK_NGX_Parameter_DLSS_CLIP_TO_PREV_CLIP_MATRIX   "ClipToPrevClipMatrix"
 
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width     "DLSS.Get.Dynamic.Max.Render.Width"
@@ -742,6 +744,7 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Balanced "DLSS.Hint.Render.Preset.Balanced"
 #define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Performance "DLSS.Hint.Render.Preset.Performance"
 #define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraPerformance "DLSS.Hint.Render.Preset.UltraPerformance"
+#define NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraQuality "DLSS.Hint.Render.Preset.UltraQuality"
 
 #ifdef __cplusplus
 } // extern "C"
