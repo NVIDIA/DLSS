@@ -225,7 +225,7 @@ typedef enum NVSDK_NGX_DeepDVC_Mode
 
 typedef struct NVSDK_NGX_Handle { unsigned int Id; } NVSDK_NGX_Handle;
 
-typedef enum NSDK_NGX_GPU_Arch
+typedef enum NVSDK_NGX_GPU_Arch
 {
     NVSDK_NGX_GPU_Arch_NotSupported = 0,
 
