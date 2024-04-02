@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
  *
  * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
@@ -272,7 +272,6 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLISP_EXT(
 
     return NVSDK_NGX_VULKAN_EvaluateFeature_C(InCmdList, InHandle, pInParams, NULL);
 }
-
 
 static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLRESOLVE_EXT(
     VkCommandBuffer InCmdList,
