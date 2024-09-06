@@ -163,7 +163,7 @@ typedef enum NVSDK_NGX_Feature
 
     NVSDK_NGX_Feature_FrameGeneration       = 11,
 
-    NVSDK_NGX_Feature_Reserved12            = 12,
+    NVSDK_NGX_Feature_DeepDVC               = 12,
 
     NVSDK_NGX_Feature_RayReconstruction     = 13,
 
@@ -233,6 +233,8 @@ typedef enum NSDK_NGX_GPU_Arch
     // backwards compatibility with snippets built against NvAPI
     NVSDK_NGX_GPU_Arch_Volta        = 0x0140,
     NVSDK_NGX_GPU_Arch_Turing       = 0x0160,
+    NVSDK_NGX_GPU_Arch_Ampere       = 0x0170,
+    NVSDK_NGX_GPU_Arch_Ada          = 0x0190,
 
     // Presumably something newer
     NVSDK_NGX_GPU_Arch_Unknown      = 0x7FFFFFF
@@ -566,7 +568,7 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_EParameter_Deprecated_43               "#\x43"
 #define NVSDK_NGX_EParameter_OptLevel                    "#\x44"
 #define NVSDK_NGX_EParameter_IsDevSnippetBranch          "#\x45"
-#define NVSDK_NGX_EParameter_Reserved_46                 "#\x46"
+#define NVSDK_NGX_EParameter_DeepDVC_Available           "#\x46"
 #define NVSDK_NGX_EParameter_Graphics_API                "#\x47"
 #define NVSDK_NGX_EParameter_Reserved_48                 "#\x48"
 #define NVSDK_NGX_EParameter_Reserved_49                 "#\x49"
@@ -753,6 +755,12 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity "DLSS.TransparencyLayerOpacity"
 #define NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_X "DLSS.TransparencyLayerOpacity.Subrect.Base.X"
 #define NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_Y "DLSS.TransparencyLayerOpacity.Subrect.Base.Y"
+#define NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs "DLSS.TransparencyLayerMvecs"
+#define NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_X "DLSS.TransparencyLayerMvecs.Subrect.Base.X"
+#define NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_Y "DLSS.TransparencyLayerMvecs.Subrect.Base.Y"
+#define NVSDK_NGX_Parameter_DLSS_DisocclusionMask "DLSS.DisocclusionMask"
+#define NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X "DLSS.DisocclusionMask.Subrect.Base.X"
+#define NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y "DLSS.DisocclusionMask.Subrect.Base.Y"
 
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width     "DLSS.Get.Dynamic.Max.Render.Width"
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Height    "DLSS.Get.Dynamic.Max.Render.Height"
