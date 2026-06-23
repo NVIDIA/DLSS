@@ -17,8 +17,6 @@
 #include "nvsdk_ngx.h"
 #include "nvsdk_ngx_defs.h"
 
-typedef NVSDK_NGX_Result(NVSDK_CONV *PFN_NVSDK_NGX_DLSS_GetStatsCallback)(NVSDK_NGX_Parameter *InParams);
-
 static inline NVSDK_NGX_Result NGX_DLSS_GET_STATS_2(
     NVSDK_NGX_Parameter *pInParams,
     unsigned long long *pVRAMAllocatedBytes,
@@ -63,8 +61,6 @@ static inline NVSDK_NGX_Result NGX_DLSS_GET_STATS(
     unsigned int dummy = 0;
     return NGX_DLSS_GET_STATS_2(pInParams, pVRAMAllocatedBytes, &dummy, &dummy);
 }
-
-typedef NVSDK_NGX_Result(NVSDK_CONV *PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback)(NVSDK_NGX_Parameter *InParams);
 
 static inline NVSDK_NGX_Result NGX_DLSS_GET_OPTIMAL_SETTINGS(
     NVSDK_NGX_Parameter *pInParams,
@@ -364,33 +360,6 @@ static inline NVSDK_NGX_Result NGX_CUDA_EVALUATE_DLISP_EXT(
     return NVSDK_NGX_CUDA_EvaluateFeature_C(pInHandle, pInParams, NULL);
 }
 
-static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLRESOLVE_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle **ppOutHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_Feature_Create_Params *pDlresolveCreateParams)
-{
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Width, pDlresolveCreateParams->InWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Height, pDlresolveCreateParams->InHeight);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutWidth, pDlresolveCreateParams->InTargetWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutHeight, pDlresolveCreateParams->InTargetHeight);
-
-    return NVSDK_NGX_D3D11_CreateFeature(pInCtx, NVSDK_NGX_Feature_DeepResolve, pInParams, ppOutHandle);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLRESOLVE_EXT(
-    ID3D11DeviceContext *pInCtx,
-    NVSDK_NGX_Handle *InHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_D3D11_Feature_Eval_Params *pDlresolveEvalParams)
-{
-    NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_Color, pDlresolveEvalParams->pInColor);
-    NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_Output, pDlresolveEvalParams->pInOutput);
-    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_Sharpness, pDlresolveEvalParams->InSharpness);
-
-    return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, InHandle, pInParams, NULL);
-}
-
 /*** D3D12 ***/
 typedef struct NVSDK_NGX_D3D12_Feature_Eval_Params
 {
@@ -587,41 +556,4 @@ static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLISP_EXT(
     }
     return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
 }
-
-
-static inline NVSDK_NGX_Result NGX_D3D12_CREATE_DLRESOLVE_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
-    unsigned int InCreationNodeMask,
-    unsigned int InVisibilityNodeMask,
-    NVSDK_NGX_Handle **ppOutHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_Feature_Create_Params *pDlresolveCreateParams)
-{
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_CreationNodeMask, InCreationNodeMask);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_VisibilityNodeMask, InVisibilityNodeMask);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Width, pDlresolveCreateParams->InWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Height, pDlresolveCreateParams->InHeight);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutWidth, pDlresolveCreateParams->InTargetWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutHeight, pDlresolveCreateParams->InTargetHeight);
-
-    return NVSDK_NGX_D3D12_CreateFeature(pInCmdList, NVSDK_NGX_Feature_DeepResolve, pInParams, ppOutHandle);
-}
-
-static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLRESOLVE_EXT(
-    ID3D12GraphicsCommandList *pInCmdList,
-    NVSDK_NGX_Handle *pInHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_D3D12_Feature_Eval_Params *pDlresolveEvalParams)
-{
-    // This call to NVSDK_NGX_Parameter_SetXXX() is equivalent to the Params->Set below functionally
-    // but to work around the lack of virtual functions and polymorphism in a C only project
-    // we introduced this new way to set params.
-    // The test should enforce that both paths work.
-    NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_Color, pDlresolveEvalParams->pInColor);
-    NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_Output, pDlresolveEvalParams->pInOutput);
-    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_Sharpness, pDlresolveEvalParams->InSharpness);
-
-    return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
-}
-
 #endif

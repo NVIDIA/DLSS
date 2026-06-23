@@ -18,8 +18,6 @@
 #include "nvsdk_ngx_defs_dlssd.h"
 #include "nvsdk_ngx_params_dlssd.h"
 #if 1
-typedef NVSDK_NGX_Result(NVSDK_CONV* PFN_NVSDK_NGX_DLSS_GetStatsCallback)(NVSDK_NGX_Parameter* InParams);
-
 static inline NVSDK_NGX_Result NGX_DLSSD_GET_STATS_2(
     NVSDK_NGX_Parameter* pInParams,
     unsigned long long* pVRAMAllocatedBytes,
@@ -65,8 +63,6 @@ static inline NVSDK_NGX_Result NGX_DLSSD_GET_STATS(
     return NGX_DLSSD_GET_STATS_2(pInParams, pVRAMAllocatedBytes, &dummy, &dummy);
 }
 #endif
-
-typedef NVSDK_NGX_Result(NVSDK_CONV* PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback)(NVSDK_NGX_Parameter* InParams);
 
 static inline NVSDK_NGX_Result NGX_DLSSD_GET_OPTIMAL_SETTINGS(
     NVSDK_NGX_Parameter* pInParams,

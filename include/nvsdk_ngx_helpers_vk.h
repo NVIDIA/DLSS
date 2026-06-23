@@ -157,10 +157,10 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLSS_EXT(
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInTransparencyMask);
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInExposureTexture);
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInBiasCurrentColorMask);
-	for (size_t i = 0; i <= 15; i++)
-	{
+    for (size_t i = 0; i <= 15; i++)
+    {
         NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->GBufferSurface.pInAttrib[i]);
-	}
+    }
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInMotionVectors3D);
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInIsParticleMask);
     NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlssEvalParams->pInAnimatedTextureMask);
@@ -254,10 +254,10 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLISP_EXT(
     NVSDK_NGX_Parameter *pInParams,
     NVSDK_NGX_VK_DLISP_Eval_Params *pInDlispEvalParams)
 {
-	NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlispEvalParams->Feature.pInColor);
-    NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlispEvalParams->Feature.pInOutput); 
+    NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlispEvalParams->Feature.pInColor);
+    NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlispEvalParams->Feature.pInOutput);
 
-   	NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Color, pInDlispEvalParams->Feature.pInColor);
+    NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Color, pInDlispEvalParams->Feature.pInColor);
     NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Output, pInDlispEvalParams->Feature.pInOutput);
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_Sharpness, pInDlispEvalParams->Feature.InSharpness);
     NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_Denoise, pInDlispEvalParams->InDenoise);
@@ -272,39 +272,4 @@ static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLISP_EXT(
 
     return NVSDK_NGX_VULKAN_EvaluateFeature_C(InCmdList, InHandle, pInParams, NULL);
 }
-
-static inline NVSDK_NGX_Result NGX_VULKAN_CREATE_DLRESOLVE_EXT(
-    VkCommandBuffer InCmdList,
-    unsigned int InCreationNodeMask,
-    unsigned int InVisibilityNodeMask,
-    NVSDK_NGX_Handle **ppOutHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_Feature_Create_Params *pInDlresolveCreateParams)
-{
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_CreationNodeMask, InCreationNodeMask);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_VisibilityNodeMask, InVisibilityNodeMask);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Width, pInDlresolveCreateParams->InWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_Height, pInDlresolveCreateParams->InHeight);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutWidth, pInDlresolveCreateParams->InTargetWidth);
-    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_OutHeight, pInDlresolveCreateParams->InTargetHeight);
-
-    return NVSDK_NGX_VULKAN_CreateFeature(InCmdList, NVSDK_NGX_Feature_DeepResolve, pInParams, ppOutHandle);
-}
-
-static inline NVSDK_NGX_Result NGX_VULKAN_EVALUATE_DLRESOLVE_EXT(
-    VkCommandBuffer InCmdList,
-    NVSDK_NGX_Handle *pInHandle,
-    NVSDK_NGX_Parameter *pInParams,
-    NVSDK_NGX_VK_Feature_Eval_Params *pInDlresolveEvalParams)
-{
-	NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlresolveEvalParams->pInColor);
-    NVSDK_NGX_ENSURE_VK_IMAGEVIEW(pInDlresolveEvalParams->pInOutput);
-    
-	NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Color, pInDlresolveEvalParams->pInColor);
-    NVSDK_NGX_Parameter_SetVoidPointer(pInParams, NVSDK_NGX_Parameter_Output, pInDlresolveEvalParams->pInOutput);
-    NVSDK_NGX_Parameter_SetF(pInParams, NVSDK_NGX_Parameter_Sharpness, pInDlresolveEvalParams->InSharpness);
-
-    return NVSDK_NGX_VULKAN_EvaluateFeature_C(InCmdList, pInHandle, pInParams, NULL);
-}
-
 #endif // NVSDK_NGX_HELPERS_VK_H

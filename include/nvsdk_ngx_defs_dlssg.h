@@ -73,7 +73,7 @@ typedef enum NVSDK_NGX_DLSSG_ResourceFlags
 // The bidirectional distortion field serves as a mapping between the pixels in the distorted color texture
 // and the undistorted guide buffers.
 #define NVSDK_NGX_DLSSG_Parameter_BidirectionalDistortionField          "DLSSG.BidirectionalDistortionField"
-// NVSDK_NGX_DLSSG_Parameter_HUDLess: Contains the scene color before any UI or HUD elements 
+// NVSDK_NGX_DLSSG_Parameter_HUDLess: Contains the scene color before any UI or HUD elements
 // are drawn. Its content for non-UI pixels should be identical to the backbuffer.
 #define NVSDK_NGX_DLSSG_Parameter_HUDLess                               "DLSSG.HUDLess"
 // NVSDK_NGX_DLSSG_Parameter_UI: A four-channel resource containing the color and opacity/alpha of the UI.
@@ -223,17 +223,17 @@ typedef enum NVSDK_NGX_DLSSG_ResourceFlags
 #define NVSDK_NGX_DLSSG_Parameter_AsyncCreateEnabled "DLSSG.AsyncCreateEnabled"
 
 // The DLSS Frame Generation algorithm processes all depth in a "linearized" depth space using the below formulation.
-// 
+//
 //     if NVSDK_NGX_DLSSG_Parameter_DepthInverted is false:    `lin_depth = 1 / (1 - depth)`
 //     if NVSDK_NGX_DLSSG_Parameter_DepthInverted is true:     `lin_depth = 1 / depth`
 //
 // This enables the algorithm to reliably threshold and characterize depth interactions.
-// 
+//
 // The Frame Generation algorithm is tuned such that most game integrations do not need to modify these values.
 // However, the below parameters provide mechanisms to control the shape of the internal depth processing space.
 // Typically useful when input raw depth units are compressed into a small dynamic range. The scale modifier
 // NVSDK_NGX_DLSSG_Parameter_LinearizedDepth_Scale is a good place to start that won't require more changes.
-// 
+//
 // Note: the input depth texture must be consistent with the input camera transformation matrices, e.g. clip2prevclip.
 
 // Optional scalar on the linearized depth before algorithm processing.

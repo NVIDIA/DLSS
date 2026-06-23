@@ -56,7 +56,7 @@ typedef struct NVSDK_NGX_Parameter
     virtual void Set(const char * InName, float InValue) = 0;
     virtual void Set(const char * InName, double InValue) = 0;
     virtual void Set(const char * InName, unsigned int InValue) = 0;
-    virtual void Set(const char * InName, int InValue) = 0;    
+    virtual void Set(const char * InName, int InValue) = 0;
     virtual void Set(const char * InName, ID3D11Resource *InValue) = 0;
     virtual void Set(const char * InName, ID3D12Resource *InValue) = 0;
     virtual void Set(const char * InName, void *InValue) = 0;
@@ -69,7 +69,7 @@ typedef struct NVSDK_NGX_Parameter
     virtual NVSDK_NGX_Result Get(const char * InName, ID3D11Resource **OutValue) const = 0;
     virtual NVSDK_NGX_Result Get(const char * InName, ID3D12Resource **OutValue) const = 0;
     virtual NVSDK_NGX_Result Get(const char * InName, void **OutValue) const = 0;
-    
+
     virtual void Reset() = 0;
 } NVSDK_NGX_Parameter;
 #else

@@ -14,30 +14,29 @@
 *  HOW TO USE:
 *
 *  IMPORTANT: FOR DLSS/DLISP PLEASE SEE THE PROGRAMMING GUIDE
-* 
+*
 *  IMPORTANT: Methods in this library are NOT thread safe. It is up to the
 *  client to ensure that thread safety is enforced as needed.
-*  
+*
 *  1) Call NVSDK_CONV NVSDK_NGX_D3D11/D3D12/CUDA_Init and pass your app Id
 *     and other parameters. This will initialize SDK or return an error code
 *     if SDK cannot run on target machine. Depending on error user might
 *     need to update drivers. Please note that application Id is provided
 *     by NVIDIA so if you do not have one please contact us.
-* 
-*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetCapabilityParameters to obtain pointer to 
-*     interface used to pass parameters to SDK. Interface instance is 
-*     allocated and released by SDK so there is no need to do any memory 
+*
+*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetCapabilityParameters to obtain pointer to
+*     interface used to pass parameters to SDK. Interface instance is
+*     allocated and released by SDK so there is no need to do any memory
 *     management on client side.
-*    
-*  3) Set key parameters for the feature you want to use. For example, 
+*
+*  3) Set key parameters for the feature you want to use. For example,
 *     width and height are required for all features and they can be
-*     set like this: 
+*     set like this:
 *         Params->Set(NVSDK_NGX_Parameter_Width,MY_WIDTH);
 *         Params->Set(NVSDK_NGX_Parameter_Height,MY_HEIGHT);
 *
-*     You can also provide hints like NVSDK_NGX_Parameter_Hint_HDR to tell
-*     SDK that it should expect HDR color space is needed. Please refer to 
-*     samples since different features need different parameters and hints.
+*     Please refer to samples since different features need different
+*     parameters and hints.
 *
 *  4) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetScratchBufferSize to obtain size of
 *     the scratch buffer needed by specific feature. This D3D or CUDA buffer
@@ -49,7 +48,7 @@
 *     as minimum size requirement is met.
 *
 *  5) Call NVSDK_NGX_D3D11/D3D12/CUDA_CreateFeature to create feature you need.
-*     On success SDK will return a handle which must be used in any successive 
+*     On success SDK will return a handle which must be used in any successive
 *     calls to SDK which require feature handle. SDK will use all parameters
 *     and hints provided by client to generate feature. If feature with the same
 *     parameters already exists and error code will be returned.
@@ -57,10 +56,10 @@
 *  6) Call NVSDK_NGX_D3D11/D3D12/CUDA_EvaluateFeature to invoke execution of
 *     specific feature. Before feature can be evaluated input parameters must
 *     be specified (like for example color/albedo buffer, motion vectors etc)
-* 
+*
 *  6) Call NVSDK_NGX_D3D11/D3D12/CUDA_ReleaseFeature when feature is no longer
 *     needed. After this call feature handle becomes invalid and cannot be used.
-* 
+*
 *  7) Call NVSDK_NGX_D3D11/D3D12/CUDA_Shutdown when SDK is no longer needed to
 *     release all resources.
 
@@ -76,8 +75,8 @@
 #include "nvsdk_ngx_defs.h"
 #include "nvsdk_ngx_params.h"
 #ifndef __cplusplus
-#include <stdbool.h> 
-#include <wchar.h> 
+#include <stdbool.h>
+#include <wchar.h>
 #endif
 
 #ifdef __cplusplus
@@ -85,29 +84,13 @@ extern "C"
 {
 #endif
 
-typedef struct IUnknown IUnknown;
-
 typedef struct IDXGIAdapter              IDXGIAdapter;
 typedef struct ID3D11Device              ID3D11Device;
 typedef struct ID3D11Resource            ID3D11Resource;
 typedef struct ID3D11DeviceContext       ID3D11DeviceContext;
-typedef struct D3D11_TEXTURE2D_DESC      D3D11_TEXTURE2D_DESC;
-typedef struct D3D11_BUFFER_DESC         D3D11_BUFFER_DESC;
-typedef struct ID3D11Buffer              ID3D11Buffer;
-typedef struct ID3D11Texture2D           ID3D11Texture2D;
 
 typedef struct ID3D12Device              ID3D12Device;
-typedef struct ID3D12Resource            ID3D12Resource;
 typedef struct ID3D12GraphicsCommandList ID3D12GraphicsCommandList;
-typedef struct D3D12_RESOURCE_DESC       D3D12_RESOURCE_DESC;
-typedef struct CD3DX12_HEAP_PROPERTIES   CD3DX12_HEAP_PROPERTIES;
-
-typedef struct NVSDK_NGX_CUDADevice      NVSDK_NGX_CUDADevice;
-
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D12_ResourceAllocCallback)(D3D12_RESOURCE_DESC *InDesc, int InState, CD3DX12_HEAP_PROPERTIES *InHeap, ID3D12Resource **OutResource);
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D11_BufferAllocCallback)(D3D11_BUFFER_DESC *InDesc, ID3D11Buffer **OutResource);
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D11_Tex2DAllocCallback)(D3D11_TEXTURE2D_DESC *InDesc, ID3D11Texture2D **OutResource);
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ResourceReleaseCallback)(IUnknown *InResource);
 
 typedef unsigned long long CUtexObject;
 
@@ -634,7 +617,7 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_ReleaseFeature(NVSDK_NG
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D11_GetFeatureRequirements(IDXGIAdapter *Adapter,
                                                                                  const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
                                                                                  NVSDK_NGX_FeatureRequirement *OutSupported);
- 
+
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_GetFeatureRequirements(IDXGIAdapter *Adapter,
                                                                                  const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
                                                                                  NVSDK_NGX_FeatureRequirement *OutSupported);
@@ -697,13 +680,11 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_GetFeatureRequirements(
 //      Check the NGX logs for additional information about any failures.
 //
 #ifdef __cplusplus
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback)(float InCurrentProgress, bool &OutShouldCancel);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D11_EvaluateFeature(ID3D11DeviceContext *InDevCtx, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback InCallback = NULL);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_EvaluateFeature(ID3D12GraphicsCommandList *InCmdList, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback InCallback = NULL);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_EvaluateFeature(const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback InCallback = NULL);
 #endif
 
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback_C)(float InCurrentProgress, bool *OutShouldCancel);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D11_EvaluateFeature_C(ID3D11DeviceContext *InDevCtx, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback_C InCallback);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_D3D12_EvaluateFeature_C(ID3D12GraphicsCommandList *InCmdList, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback_C InCallback);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_CUDA_EvaluateFeature_C(const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback_C InCallback);
