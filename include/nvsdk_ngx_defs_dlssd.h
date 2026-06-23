@@ -22,7 +22,7 @@ typedef enum NVSDK_NGX_DLSS_Denoise_Mode
 
 typedef enum NVSDK_NGX_DLSS_Roughness_Mode
 {
-    NVSDK_NGX_DLSS_Roughness_Mode_Unpacked = 0, // Read roughness separately 
+    NVSDK_NGX_DLSS_Roughness_Mode_Unpacked = 0, // Read roughness separately
     NVSDK_NGX_DLSS_Roughness_Mode_Packed = 1, // Read roughness from normals.w
 } NVSDK_NGX_DLSS_Roughness_Mode;
 
@@ -41,7 +41,7 @@ typedef enum NVSDK_NGX_RayReconstruction_Hint_Render_Preset
                                                                             // NVSDK_NGX_RayReconstruction_Hint_Render_Preset_C removed, use preset D or E
     NVSDK_NGX_RayReconstruction_Hint_Render_Preset_D = 4,                   // Default model (transformer)
     NVSDK_NGX_RayReconstruction_Hint_Render_Preset_E = 5,                   // Latest transformer model (must use if DoF guide is needed)
-    NVSDK_NGX_RayReconstruction_Hint_Render_Preset_F = 6,                   // Do not use, reverts to default behavior
+    NVSDK_NGX_RayReconstruction_Hint_Render_Preset_F = 6,                   // Do not use. reverts to default behavior
     NVSDK_NGX_RayReconstruction_Hint_Render_Preset_G = 7,                   // Do not use, reverts to default behavior
     NVSDK_NGX_RayReconstruction_Hint_Render_Preset_H = 8,                   // Do not use, reverts to default behavior
     NVSDK_NGX_RayReconstruction_Hint_Render_Preset_I = 9,                   // Do not use, reverts to default behavior
@@ -96,6 +96,7 @@ typedef enum NVSDK_NGX_RayReconstruction_Hint_Render_Preset
 #define NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance "DLSSD.SpecularRayDirectionHitDistance"
 #define NVSDK_NGX_Parameter_DLSSD_Alpha "DLSSD.Alpha"
 #define NVSDK_NGX_Parameter_DLSSD_OutputAlpha "DLSSD.OutputAlpha"
+#define NVSDK_NGX_Parameter_DLSSD_ResponsivityMask "DLSSD.ResponsivityMask"
 #define NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_X "DLSSD.Alpha.Subrect.Base.X"
 #define NVSDK_NGX_Parameter_DLSSD_Alpha_Subrect_Base_Y "DLSSD.Alpha.Subrect.Base.Y"
 #define NVSDK_NGX_Parameter_DLSSD_OutputAlpha_Subrect_Base_X "DLSSD.OutputAlpha.Subrect.Base.X"
@@ -144,6 +145,8 @@ typedef enum NVSDK_NGX_RayReconstruction_Hint_Render_Preset
 #define NVSDK_NGX_Parameter_DLSSD_DiffuseRayDirectionHitDistance_Subrect_Base_Y "DLSSD.DiffuseRayDirectionHitDistance.Subrect.Base.Y"
 #define NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_X "DLSSD.SpecularRayDirectionHitDistance.Subrect.Base.X"
 #define NVSDK_NGX_Parameter_DLSSD_SpecularRayDirectionHitDistance_Subrect_Base_Y "DLSSD.SpecularRayDirectionHitDistance.Subrect.Base.Y"
+#define NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_X "DLSSD.ResponsivityMask.Subrect.Base.X"
+#define NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_Y "DLSSD.ResponsivityMask.Subrect.Base.Y"
 
 #define NVSDK_NGX_Parameter_SuperSamplingDenoising_Available             "SuperSamplingDenoising.Available"
 #define NVSDK_NGX_Parameter_SuperSamplingDenoising_NeedsUpdatedDriver    "SuperSamplingDenoising.NeedsUpdatedDriver"

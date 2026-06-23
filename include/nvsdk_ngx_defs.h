@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2018-2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2018-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: LicenseRef-NvidiaProprietary
  *
  * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
@@ -46,7 +46,7 @@ extern "C"
 #endif
 
 #define NVSDK_NGX_ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
-    
+
 //  Version Notes:
 //      Version 0x0000014:
 //          * Added a logging callback that the app may pass in on init
@@ -87,6 +87,8 @@ typedef enum NVSDK_NGX_DLSS_Hint_Render_Preset
     NVSDK_NGX_DLSS_Hint_Render_Preset_O = 15,                   // Do not use, reverts to default behavior
 } NVSDK_NGX_DLSS_Hint_Render_Preset;
 
+typedef struct NVSDK_NGX_Handle NVSDK_NGX_Handle;
+typedef struct NVSDK_NGX_Parameter NVSDK_NGX_Parameter;
 typedef struct NVSDK_NGX_FeatureCommonInfo_Internal NVSDK_NGX_FeatureCommonInfo_Internal;
 
 typedef enum NVSDK_NGX_Version { NVSDK_NGX_Version_API = NVSDK_NGX_VERSION_API_MACRO } NVSDK_NGX_Version;
@@ -175,6 +177,9 @@ typedef enum NVSDK_NGX_Result
     NVSDK_NGX_Result_FAIL_NotImplemented = NVSDK_NGX_Result_Fail | 18,
 } NVSDK_NGX_Result;
 
+// Skip setting the debug overlay value if it is UNSET.
+#define NVSDK_NGX_DLSS_DEBUG_OVERLAY_VALUE_UNSET -1
+
 #define NVSDK_NGX_SUCCEED(value) (((value) & 0xFFF00000) != NVSDK_NGX_Result_Fail)
 #define NVSDK_NGX_FAILED(value) (((value) & 0xFFF00000) == NVSDK_NGX_Result_Fail)
 
@@ -215,6 +220,8 @@ typedef enum NVSDK_NGX_Feature
     NVSDK_NGX_Feature_Reserved16            = 16,
 
     NVSDK_NGX_Feature_Reserved17            = 17,
+
+    NVSDK_NGX_Feature_Reserved18            = 18,
 
     // New features go here
     NVSDK_NGX_Feature_Count,
@@ -258,15 +265,15 @@ typedef enum NVSDK_NGX_RTX_Value
     NVSDK_NGX_RTX_Value_On,
 } NVSDK_NGX_RTX_Value;
 
-// For each unique instance, a pointer to NVSDK_NGX_CUDADevice is passed in to 
+// For each unique instance, a pointer to NVSDK_NGX_CUDADevice is passed in to
 // NVSDK_NGX_CUDA_Init1, NVSDK_NGX_CUDA_CreateFeature1 and NVSDK_NGX_CUDA_Shutdown1.
 // This is needed in the case of running multiple threads in a single process.
 // Depending on the app usage of CUDA, one or both of cudaContext and cudaStream can be set.
-struct NVSDK_NGX_CUDADevice
+typedef struct NVSDK_NGX_CUDADevice
 {
     void*   cudaContext;        // CUcontext returned from cuCtxCreate
     void*   cudaStream;         // CUstream returned from cuStreamCreate
-};
+} NVSDK_NGX_CUDADevice;
 
 typedef enum NVSDK_NGX_DLSS_Mode
 {
@@ -275,8 +282,6 @@ typedef enum NVSDK_NGX_DLSS_Mode
     NVSDK_NGX_DLSS_Mode_DLISP_Only, // use existing in-engine AA solution
     NVSDK_NGX_DLSS_Mode_DLSS,       // DLSS will apply AA and upsample at the same time
 } NVSDK_NGX_DLSS_Mode;
-
-typedef struct NVSDK_NGX_Handle { unsigned int Id; } NVSDK_NGX_Handle;
 
 typedef enum NVSDK_NGX_DLSS_Feature_Flags
 {
@@ -291,6 +296,7 @@ typedef enum NVSDK_NGX_DLSS_Feature_Flags
     NVSDK_NGX_DLSS_Feature_Flags_DoSharpening SR_DEPRECATED_SHARPENING = 1 << 5, // Sharpness is not supported
     NVSDK_NGX_DLSS_Feature_Flags_AutoExposure   = 1 << 6,
     NVSDK_NGX_DLSS_Feature_Flags_AlphaUpscaling = 1 << 7,
+    NVSDK_NGX_DLSS_Feature_Flags_Reserved_8     = 1 << 8,
 } NVSDK_NGX_DLSS_Feature_Flags;
 
 typedef enum NVSDK_NGX_ToneMapperType
@@ -315,9 +321,10 @@ typedef enum NVSDK_NGX_GBufferType
     NVSDK_NGX_GBUFFER_SPECULAR_ALBEDO,
     NVSDK_NGX_GBUFFER_INDIRECT_ALBEDO,
     NVSDK_NGX_GBUFFER_SPECULAR_MVEC,
-    NVSDK_NGX_GBUFFER_DISOCCL_MASK,
+    NVSDK_NGX_GBUFFER_DISOCCL_MASK, /* deprecated: use NVSDK_NGX_GBUFFER_RESPONSIVITY_MASK*/
     NVSDK_NGX_GBUFFER_EMISSIVE,
-    NVSDK_NGX_GBUFFERTYPE_NUM = 16
+    NVSDK_NGX_GBUFFER_RESPONSIVITY_MASK,
+    NVSDK_NGX_GBUFFERTYPE_NUM = 17
 } NVSDK_NGX_GBufferType;
 
 typedef struct NVSDK_NGX_Coordinates
@@ -401,12 +408,6 @@ typedef struct NVSDK_NGX_FeatureCommonInfo
     NVSDK_NGX_LoggingInfo LoggingInfo;
 } NVSDK_NGX_FeatureCommonInfo;
 
-typedef enum NVSDK_NGX_Resource_VK_Type
-{
-    NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW,
-    NVSDK_NGX_RESOURCE_VK_TYPE_VK_BUFFER
-} NVSDK_NGX_Resource_VK_Type;
-
 typedef enum NVSDK_NGX_Opt_Level
 {
     NVSDK_NGX_OPT_LEVEL_UNDEFINED = 0,
@@ -423,6 +424,15 @@ typedef enum NVSDK_NGX_EngineType
     NVSDK_NGX_ENGINE_TYPE_OMNIVERSE,
     NVSDK_NGX_ENGINE_COUNT
 } NVSDK_NGX_EngineType;
+
+typedef enum NVSDK_NGX_GraphicsAPI
+{
+    NVSDK_NGX_GRAPHICS_API_CUDA = 0,
+    NVSDK_NGX_GRAPHICS_API_D3D11 = 1,
+    NVSDK_NGX_GRAPHICS_API_D3D12 = 2,
+    NVSDK_NGX_GRAPHICS_API_VULKAN = 3,
+    NVSDK_NGX_GRAPHICS_API_COUNT
+} NVSDK_NGX_GraphicsAPI;
 
 typedef enum NVSDK_NGX_Feature_Support_Result
 {
@@ -534,6 +544,29 @@ typedef struct NVSDK_NGX_FeatureRequirement
     // Value corresponding to minimum OS version required for NGX Feature Support
     char MinOSVersion[255];
 } NVSDK_NGX_FeatureRequirement;
+
+// Callback function types
+typedef NVSDK_NGX_Result(NVSDK_CONV *PFN_NVSDK_NGX_DLSS_GetStatsCallback)(NVSDK_NGX_Parameter *InParams);
+typedef NVSDK_NGX_Result(NVSDK_CONV *PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback)(NVSDK_NGX_Parameter *InParams);
+
+typedef struct IUnknown                  IUnknown;
+typedef struct D3D11_TEXTURE2D_DESC      D3D11_TEXTURE2D_DESC;
+typedef struct D3D11_BUFFER_DESC         D3D11_BUFFER_DESC;
+typedef struct ID3D11Buffer              ID3D11Buffer;
+typedef struct ID3D11Texture2D           ID3D11Texture2D;
+typedef struct ID3D12Resource            ID3D12Resource;
+typedef struct D3D12_RESOURCE_DESC       D3D12_RESOURCE_DESC;
+typedef struct CD3DX12_HEAP_PROPERTIES   CD3DX12_HEAP_PROPERTIES;
+
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D12_ResourceAllocCallback)(D3D12_RESOURCE_DESC *InDesc, int InState, CD3DX12_HEAP_PROPERTIES *InHeap, ID3D12Resource **OutResource);
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D11_BufferAllocCallback)(D3D11_BUFFER_DESC *InDesc, ID3D11Buffer **OutResource);
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_D3D11_Tex2DAllocCallback)(D3D11_TEXTURE2D_DESC *InDesc, ID3D11Texture2D **OutResource);
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ResourceReleaseCallback)(IUnknown *InResource);
+
+#ifdef __cplusplus
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback)(float InCurrentProgress, bool &OutShouldCancel);
+#endif
+typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback_C)(float InCurrentProgress, bool *OutShouldCancel);
 
 // Read-only parameters provided by NGX
 #define NVSDK_NGX_EParameter_Reserved00                           "#\x00"
@@ -784,6 +817,10 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_DLSS_Input_Bias_Current_Color_SubrectBase_Y "DLSS.Input.Bias.Current.Color.Subrect.Base.Y"
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_Y_Axis          "DLSS.Indicator.Invert.Y.Axis"
 #define NVSDK_NGX_Parameter_DLSS_Indicator_Invert_X_Axis          "DLSS.Indicator.Invert.X.Axis"
+#define NVSDK_NGX_Parameter_DLSS_Overlay_Debug_Layer  "DLSS.Overlay.Debug.Layer"
+#define NVSDK_NGX_Parameter_DLSS_Overlay_Full_Screen  "DLSS.Overlay.Full.Screen"
+#define NVSDK_NGX_Parameter_DLSS_Overlay_Show_Nans    "DLSS.Overlay.Show.Nans"
+#define NVSDK_NGX_Parameter_DLSS_Overlay_Jitter_Debug "DLSS.Overlay.Jitter.Debug"
 #define NVSDK_NGX_Parameter_DLSS_INV_VIEW_PROJECTION_MATRIX "InvViewProjectionMatrix"
 #define NVSDK_NGX_Parameter_DLSS_CLIP_TO_PREV_CLIP_MATRIX   "ClipToPrevClipMatrix"
 
@@ -799,6 +836,9 @@ typedef struct NVSDK_NGX_FeatureRequirement
 #define NVSDK_NGX_Parameter_DLSS_DisocclusionMask "DLSS.DisocclusionMask"
 #define NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X "DLSS.DisocclusionMask.Subrect.Base.X"
 #define NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y "DLSS.DisocclusionMask.Subrect.Base.Y"
+#define NVSDK_NGX_Parameter_DLSS_ResponsivityMask "DLSS.ResponsivityMask"
+#define NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_X "DLSS.ResponsivityMask.Subrect.Base.X"
+#define NVSDK_NGX_Parameter_DLSS_ResponsivityMask_Subrect_Base_Y "DLSS.ResponsivityMask.Subrect.Base.Y"
 
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Width     "DLSS.Get.Dynamic.Max.Render.Width"
 #define NVSDK_NGX_Parameter_DLSS_Get_Dynamic_Max_Render_Height    "DLSS.Get.Dynamic.Max.Render.Height"

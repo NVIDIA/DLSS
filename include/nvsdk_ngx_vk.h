@@ -15,27 +15,26 @@
 *
 *  IMPORTANT: Methods in this library are NOT thread safe. It is up to the
 *  client to ensure that thread safety is enforced as needed.
-*  
+*
 *  1) Call NVSDK_CONV NVSDK_NGX_D3D11/D3D12/CUDA_Init and pass your app Id
 *     and other parameters. This will initialize SDK or return an error code
 *     if SDK cannot run on target machine. Depending on error user might
 *     need to update drivers. Please note that application Id is provided
 *     by NVIDIA so if you do not have one please contact us.
-* 
-*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetParameters to obtain pointer to 
-*     interface used to pass parameters to SDK. Interface instance is 
-*     allocated and released by SDK so there is no need to do any memory 
+*
+*  2) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetParameters to obtain pointer to
+*     interface used to pass parameters to SDK. Interface instance is
+*     allocated and released by SDK so there is no need to do any memory
 *     management on client side.
-*    
-*  3) Set key parameters for the feature you want to use. For example, 
+*
+*  3) Set key parameters for the feature you want to use. For example,
 *     width and height are required for all features and they can be
-*     set like this: 
+*     set like this:
 *         Params->Set(NVSDK_NGX_Parameter_Width,MY_WIDTH);
 *         Params->Set(NVSDK_NGX_Parameter_Height,MY_HEIGHT);
 *
-*     You can also provide hints like NVSDK_NGX_Parameter_Hint_HDR to tell
-*     SDK that it should expect HDR color space is needed. Please refer to 
-*     samples since different features need different parameters and hints.
+*     Please refer to samples since different features need different
+*     parameters and hints.
 *
 *  4) Call NVSDK_NGX_D3D11/D3D12/CUDA_GetScratchBufferSize to obtain size of
 *     the scratch buffer needed by specific feature. This D3D or CUDA buffer
@@ -47,7 +46,7 @@
 *     as minimum size requirement is met.
 *
 *  5) Call NVSDK_NGX_D3D11/D3D12/CUDA_CreateFeature to create feature you need.
-*     On success SDK will return a handle which must be used in any successive 
+*     On success SDK will return a handle which must be used in any successive
 *     calls to SDK which require feature handle. SDK will use all parameters
 *     and hints provided by client to generate feature. If feature with the same
 *     parameters already exists and error code will be returned.
@@ -55,10 +54,10 @@
 *  6) Call NVSDK_NGX_D3D11/D3D12/CUDA_EvaluateFeature to invoke execution of
 *     specific feature. Before feature can be evaluated input parameters must
 *     be specified (like for example color/albedo buffer, motion vectors etc)
-* 
+*
 *  6) Call NVSDK_NGX_D3D11/D3D12/CUDA_ReleaseFeature when feature is no longer
 *     needed. After this call feature handle becomes invalid and cannot be used.
-* 
+*
 *  7) Call NVSDK_NGX_D3D11/D3D12/CUDA_Shutdown when SDK is no longer needed to
 *     release all resources.
 
@@ -70,10 +69,11 @@
 #define NVSDK_NGX_VK_H
 
 #include "nvsdk_ngx_defs.h"
+#include "nvsdk_ngx_defs_vk.h"
 #include "nvsdk_ngx_params.h"
 #ifndef __cplusplus
-#include <stdbool.h> 
-#include <wchar.h> 
+#include <stdbool.h>
+#include <wchar.h>
 #endif
 
 #ifdef __cplusplus
@@ -82,79 +82,9 @@ extern "C"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// NVSDK_NGX_ImageViewInfo_VK [Vulkan only]
-// Contains ImageView-specific metadata.
-// ImageView:
-//    The VkImageView resource.
-//
-// Image:
-//    The VkImage associated to this VkImageView.
-//
-// SubresourceRange:
-//    The VkImageSubresourceRange associated to this VkImageView.
-//
-//  Format:
-//    The format of the resource.
-//
-//  Width:
-//     The width of the resource.
-// 
-//  Height:
-//     The height of the resource.
-//
-typedef struct NVSDK_NGX_ImageViewInfo_VK {
-    VkImageView ImageView;
-    VkImage Image;
-    VkImageSubresourceRange SubresourceRange;
-    VkFormat Format;
-    unsigned int Width;
-    unsigned int Height;
-} NVSDK_NGX_ImageViewInfo_VK;
-
-////////////////////////////////////////////////////////////////////////////////
-// NVSDK_NGX_BufferInfo_VK [Vulkan only]
-// Contains Buffer-specific metadata.
-// Buffer
-//    The VkBuffer resource.
-//
-// SizeInBytes:
-//    The size of the resource (in bytes).
-//
-typedef struct NVSDK_NGX_BufferInfo_VK {
-    VkBuffer Buffer;
-    unsigned int SizeInBytes;
-} NVSDK_NGX_BufferInfo_VK;
-
-////////////////////////////////////////////////////////////////////////////////
-// NVSDK_NGX_Resource_VK [Vulkan only]
-//
-// ImageViewInfo:
-//    The VkImageView resource, and VkImageView-specific metadata. A NVSDK_NGX_Resource_VK can only have one of ImageViewInfo or BufferInfo.
-//
-// BufferInfo:
-//    The VkBuffer Resource, and VkBuffer-specific metadata. A NVSDK_NGX_Resource_VK can only have one of ImageViewInfo or BufferInfo.
-// 
-//  Type:
-//    Whether or this resource is a VkImageView or a VkBuffer.
-// 
-//  ReadWrite:
-//     True if the resource is available for read and write access.
-//          For VkBuffer resources: VkBufferUsageFlags includes VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT or VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
-//          For VkImage resources: VkImageUsageFlags for associated VkImage includes VK_IMAGE_USAGE_STORAGE_BIT
-//
-typedef struct NVSDK_NGX_Resource_VK {
-    union {
-        NVSDK_NGX_ImageViewInfo_VK ImageViewInfo;
-        NVSDK_NGX_BufferInfo_VK BufferInfo;
-    } Resource;
-    NVSDK_NGX_Resource_VK_Type Type;
-    bool ReadWrite;
-} NVSDK_NGX_Resource_VK;
-
-////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_VULKAN_RequiredExtensions [Vulkan only]
 // -------------------------------------
-// DEPRECATED: Use NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements() and 
+// DEPRECATED: Use NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements() and
 // NVSDK_NGX_VULKAN_GetFeatureRequirements() instead.
 //
 // Retrieves the instance and device extensions required by NGX.
@@ -676,8 +606,8 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureRequirement
                                                                                   const VkPhysicalDevice PhysicalDevice,
                                                                                   const NVSDK_NGX_FeatureDiscoveryInfo *FeatureDiscoveryInfo,
                                                                                   NVSDK_NGX_FeatureRequirement *OutSupported);
- 
- 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // NVSDK_NGX_VULKAN_GetFeatureInstanceExtensionRequirements
 // -----------------------------------------------------------------------------
@@ -820,10 +750,8 @@ NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_GetFeatureDeviceExten
 //      Check the NGX logs for additional information about any failures.
 //
 #ifdef __cplusplus
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback)(float InCurrentProgress, bool &OutShouldCancel);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_EvaluateFeature(VkCommandBuffer InCmdList, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback InCallback = NULL);
 #endif
-typedef void (NVSDK_CONV *PFN_NVSDK_NGX_ProgressCallback_C)(float InCurrentProgress, bool *OutShouldCancel);
 NVSDK_NGX_API NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_VULKAN_EvaluateFeature_C(VkCommandBuffer InCmdList, const NVSDK_NGX_Handle *InFeatureHandle, const NVSDK_NGX_Parameter *InParameters, PFN_NVSDK_NGX_ProgressCallback_C InCallback);
 
 #if defined(NGX_SNIPPET_BUILD)

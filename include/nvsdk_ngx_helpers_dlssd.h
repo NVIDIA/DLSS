@@ -18,8 +18,6 @@
 #include "nvsdk_ngx_defs_dlssd.h"
 #include "nvsdk_ngx_params_dlssd.h"
 
-typedef NVSDK_NGX_Result(NVSDK_CONV* PFN_NVSDK_NGX_DLSS_GetStatsCallback)(NVSDK_NGX_Parameter* InParams);
-
 static inline NVSDK_NGX_Result NGX_DLSSD_GET_STATS_2(
     NVSDK_NGX_Parameter* pInParams,
     unsigned long long* pVRAMAllocatedBytes,
@@ -64,8 +62,6 @@ static inline NVSDK_NGX_Result NGX_DLSSD_GET_STATS(
     unsigned int dummy = 0;
     return NGX_DLSSD_GET_STATS_2(pInParams, pVRAMAllocatedBytes, &dummy, &dummy);
 }
-
-typedef NVSDK_NGX_Result(NVSDK_CONV* PFN_NVSDK_NGX_DLSS_GetOptimalSettingsCallback)(NVSDK_NGX_Parameter* InParams);
 
 static inline NVSDK_NGX_Result NGX_DLSSD_GET_OPTIMAL_SETTINGS(
     NVSDK_NGX_Parameter* pInParams,
@@ -224,6 +220,8 @@ typedef struct NVSDK_NGX_D3D11_DLSSD_Eval_Params
     NVSDK_NGX_Coordinates               InTransparencyLayerMvecsSubrectBase;
     ID3D11Resource*                     pInDisocclusionMask; /* optional input res disocclusion mask */
     NVSDK_NGX_Coordinates               InDisocclusionMaskSubrectBase;
+    ID3D11Resource*                     pInResponsivityMask; /* optional input res responsivity mask; one channel, API range [-1,1]; R16F or R8 SNORM */
+    NVSDK_NGX_Coordinates               InResponsivityMaskSubrectBase;
 } NVSDK_NGX_D3D11_DLSSD_Eval_Params;
 
 static inline NVSDK_NGX_Result NGX_D3D11_CREATE_DLSSD_EXT(
@@ -401,6 +399,7 @@ static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSSD_EXT(
     NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity, pInDlssDEvalParams->pInTransparencyLayerOpacity);
     NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs, pInDlssDEvalParams->pInTransparencyLayerMvecs);
     NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask, pInDlssDEvalParams->pInDisocclusionMask);
+    NVSDK_NGX_Parameter_SetD3d11Resource(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask, pInDlssDEvalParams->pInResponsivityMask);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_X, pInDlssDEvalParams->InTransparencyLayerSubrectBase.X);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_Y, pInDlssDEvalParams->InTransparencyLayerSubrectBase.Y);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_X, pInDlssDEvalParams->InTransparencyLayerOpacitySubrectBase.X);
@@ -409,6 +408,8 @@ static inline NVSDK_NGX_Result NGX_D3D11_EVALUATE_DLSSD_EXT(
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_Y, pInDlssDEvalParams->InTransparencyLayerMvecsSubrectBase.Y);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X, pInDlssDEvalParams->InDisocclusionMaskSubrectBase.X);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y, pInDlssDEvalParams->InDisocclusionMaskSubrectBase.Y);
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_X, pInDlssDEvalParams->InResponsivityMaskSubrectBase.X);
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_Y, pInDlssDEvalParams->InResponsivityMaskSubrectBase.Y);
 
 
     return NVSDK_NGX_D3D11_EvaluateFeature_C(pInCtx, pInHandle, pInParams, NULL);
@@ -520,6 +521,8 @@ typedef struct NVSDK_NGX_D3D12_DLSSD_Eval_Params
     NVSDK_NGX_Coordinates               InTransparencyLayerMvecsSubrectBase;
     ID3D12Resource*                     pInDisocclusionMask; /* optional input res disocclusion mask */
     NVSDK_NGX_Coordinates               InDisocclusionMaskSubrectBase;
+    ID3D12Resource*                     pInResponsivityMask; /* optional input res responsivity mask; one channel, R16F or R8 SNORM */
+    NVSDK_NGX_Coordinates               InResponsivityMaskSubrectBase;
 
 } NVSDK_NGX_D3D12_DLSSD_Eval_Params;
 
@@ -700,6 +703,7 @@ static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSSD_EXT(
     NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity, pInDlssDEvalParams->pInTransparencyLayerOpacity);
     NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs, pInDlssDEvalParams->pInTransparencyLayerMvecs);
     NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask, pInDlssDEvalParams->pInDisocclusionMask);
+    NVSDK_NGX_Parameter_SetD3d12Resource(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask, pInDlssDEvalParams->pInResponsivityMask);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_X, pInDlssDEvalParams->InTransparencyLayerSubrectBase.X);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayer_Subrect_Base_Y, pInDlssDEvalParams->InTransparencyLayerSubrectBase.Y);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerOpacity_Subrect_Base_X, pInDlssDEvalParams->InTransparencyLayerOpacitySubrectBase.X);
@@ -708,6 +712,8 @@ static inline NVSDK_NGX_Result NGX_D3D12_EVALUATE_DLSSD_EXT(
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_TransparencyLayerMvecs_Subrect_Base_Y, pInDlssDEvalParams->InTransparencyLayerMvecsSubrectBase.Y);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_X, pInDlssDEvalParams->InDisocclusionMaskSubrectBase.X);
     NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSS_DisocclusionMask_Subrect_Base_Y, pInDlssDEvalParams->InDisocclusionMaskSubrectBase.Y);
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_X, pInDlssDEvalParams->InResponsivityMaskSubrectBase.X);
+    NVSDK_NGX_Parameter_SetUI(pInParams, NVSDK_NGX_Parameter_DLSSD_ResponsivityMask_Subrect_Base_Y, pInDlssDEvalParams->InResponsivityMaskSubrectBase.Y);
 
     return NVSDK_NGX_D3D12_EvaluateFeature_C(pInCmdList, pInHandle, pInParams, NULL);
 }
